@@ -1,0 +1,35 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <declare-styleable name="AspectRatioFrameLayout">
+        <attr name="aspectRatio" format="float" > <!-- 宽高比，此属性优先级高于以下aspectRatioWidth和aspectRatioHeight -->
+            <flag name="none" value="0" />
+            <flag name="default_16_to_9" value="-1" />
+            <flag name="default_9_to_16" value="-2" />
+            <flag name="default_4_to_3" value="-3" />
+            <flag name="default_3_to_4" value="-4" />
+        </attr>
+        <attr name="aspectRatioWidth" format="float" > <!-- 宽高比中的宽度比例 -->
+            <flag name="none" value="0" />
+        </attr>
+        <attr name="aspectRatioHeight" format="float" > <!-- 宽高比中的高度比例 -->
+            <flag name="none" value="0" />
+        </attr>
+        <attr name="keepAspectDimension" format="enum" > <!-- 保持宽高的某一边不变 -->
+            <enum name="no_wrap_content" value="0" />
+            <enum name="width" value="1" />
+            <enum name="height" value="2" />
+        </attr>
+        <attr name="aspectRatioMinWidth" format="dimension" > <!-- 自动调整时的最小宽度，仅在宽度自动根据比例变换时有效 -->
+            <flag name="none" value="-1" />
+        </attr>
+        <attr name="aspectRatioMaxWidth" format="dimension" > <!-- 自动调整时的最大宽度，仅在宽度自动根据比例变换时有效 -->
+            <flag name="none" value="-1" />
+        </attr>
+        <attr name="aspectRatioMinHeight" format="dimension" > <!-- 自动调整时的最小高度，仅在高度自动根据比例变换时有效 -->
+            <flag name="none" value="-1" />
+        </attr>
+        <attr name="aspectRatioMaxHeight" format="dimension" > <!-- 自动调整时的最小高度，仅在高度自动根据比例变换时有效 -->
+            <flag name="none" value="-1" />
+        </attr>
+    </declare-styleable>
+</resources>
