@@ -48,10 +48,20 @@ public abstract class SelectionViewHolder extends RecyclerViewHolder {
             return;
         }
 
-        this.itemView.setSelected(datasource.gainSelected(this));
+        setSelected(datasource.gainSelected(this));
     }
 
     /* Properties */
+    private boolean selected;
+    protected SelectionViewHolder setSelected(boolean selected) {
+        this.selected = selected;
+        this.itemView.setSelected(selected);
+        return this;
+    }
+    public boolean isSelected() {
+        return this.selected;
+    }
+
     private SelectionItemDelegate selectionItemDelegate;
     protected SelectionViewHolder setSelectionItemDelegate(SelectionItemDelegate selectionItemDelegate) {
         this.selectionItemDelegate = selectionItemDelegate;
@@ -78,6 +88,7 @@ public abstract class SelectionViewHolder extends RecyclerViewHolder {
      
      
     /* Delegates */
+
 
     /* Protected Methods */
 

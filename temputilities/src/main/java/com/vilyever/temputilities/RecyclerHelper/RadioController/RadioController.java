@@ -100,13 +100,13 @@ public abstract class RadioController extends ViewController {
 
     public RadioController setEdgeSpacing(boolean edgeSpacing) {
         if (edgeSpacing != isEdgeSpacing()) {
-            getItemDecoration().setEdgeSpacing(edgeSpacing);
+            getItemDecoration().setEdgeSpaceEqualInnerSpace(edgeSpacing);
             getRadioRecyclerView().getAdapter().notifyDataSetChanged();
         }
         return this;
     }
     public boolean isEdgeSpacing() {
-        return getItemDecoration().isEdgeSpacing();
+        return getItemDecoration().isEdgeSpaceEqualInnerSpace();
     }
 
     public RadioController selectRadioItem(int position) {

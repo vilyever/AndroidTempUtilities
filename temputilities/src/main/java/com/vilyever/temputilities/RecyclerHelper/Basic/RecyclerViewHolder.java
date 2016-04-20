@@ -26,8 +26,13 @@ public abstract class RecyclerViewHolder extends RecyclerView.ViewHolder {
     }
     
     /* Public Methods */
-    public abstract void onViewHolderWillBind();
-    public abstract void onViewHolderBind();
+    public void onViewHolderWillBind() {
+
+    }
+
+    public void onViewHolderBind(){
+
+    }
 
 //    /**
 //     * {@link SelectionViewHolder} 便捷构造，adapter无需关心ViewHolder的layout文件是什么

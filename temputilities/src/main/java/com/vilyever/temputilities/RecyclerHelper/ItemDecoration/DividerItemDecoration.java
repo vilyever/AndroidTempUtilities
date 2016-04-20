@@ -4,6 +4,7 @@ import android.graphics.Rect;
 import android.support.v7.widget.GridLayoutManager;
 import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
+import android.util.Log;
 import android.view.View;
 
 /**
@@ -25,15 +26,21 @@ public class DividerItemDecoration extends RecyclerView.ItemDecoration {
     }
 
     public DividerItemDecoration(int horizontalSpace, int verticalSpace) {
-        this(horizontalSpace, verticalSpace, true);
+        this(horizontalSpace, verticalSpace, false);
     }
 
-    public DividerItemDecoration(int horizontalSpace, int verticalSpace, boolean edgeSpacing) {
+    public DividerItemDecoration(int horizontalSpace, int verticalSpace, boolean edgeSpaceEqualInnerSpace) {
         this.horizontalSpace = horizontalSpace;
         this.verticalSpace = verticalSpace;
-        this.edgeSpacing = edgeSpacing;
+        this.edgeSpaceEqualInnerSpace = edgeSpaceEqualInnerSpace;
     }
-    
+
+    public DividerItemDecoration(int horizontalSpace, int verticalSpace, Rect edgeSpace) {
+        this.horizontalSpace = horizontalSpace;
+        this.verticalSpace = verticalSpace;
+        this.edgeSpace = edgeSpace;
+    }
+
     
     /* Public Methods */
     
@@ -66,145 +73,113 @@ public class DividerItemDecoration extends RecyclerView.ItemDecoration {
     /**
      * 边缘是否有间隔空间
      */
-    private boolean edgeSpacing;
-    public boolean isEdgeSpacing() {
-        return edgeSpacing;
+    private boolean edgeSpaceEqualInnerSpace;
+    public boolean isEdgeSpaceEqualInnerSpace() {
+        return edgeSpaceEqualInnerSpace;
     }
-    public DividerItemDecoration setEdgeSpacing(boolean edgeSpacing) {
-        this.edgeSpacing = edgeSpacing;
+    public DividerItemDecoration setEdgeSpaceEqualInnerSpace(boolean edgeSpaceEqualInnerSpace) {
+        this.edgeSpaceEqualInnerSpace = edgeSpaceEqualInnerSpace;
         return this;
+    }
+
+    private Rect edgeSpace;
+    public DividerItemDecoration setEdgeSpace(Rect edgeSpace) {
+        this.edgeSpace = edgeSpace;
+        return this;
+    }
+    public DividerItemDecoration setEdgeSpace(int left, int top, int right, int bottom) {
+        return setEdgeSpace(new Rect(left, top, right, bottom));
+    }
+    public Rect getEdgeSpace() {
+        return this.edgeSpace;
     }
 
     
     /* Overrides */
     @Override
     public void getItemOffsets(Rect outRect, View view, RecyclerView parent, RecyclerView.State state) {
-        //We can supply forced insets for each item view here in the Rect
         int position = parent.getChildAdapterPosition(view);
         int itemCount = parent.getAdapter().getItemCount();
+        int parentHorizontalSpace = parent.getWidth() - parent.getPaddingLeft() - parent.getPaddingRight();
+        int parentVerticalSpace = parent.getHeight() - parent.getPaddingTop() - parent.getPaddingBottom();
 
-        int left, top, right, bottom;
-        left = top = right = bottom = 0;
+        Rect rect = new Rect(0, 0, 0, 0);
+
+        Rect edgeSpace = new Rect(getEdgeSpace());
+        if (isEdgeSpaceEqualInnerSpace()) {
+            edgeSpace.set(getHorizontalSpace(), getVerticalSpace(), getHorizontalSpace(), getVerticalSpace());
+        }
 
         if (parent.getLayoutManager() instanceof GridLayoutManager) {
             GridLayoutManager layoutManager = (GridLayoutManager) parent.getLayoutManager();
+
+            if (!isEdgeSpaceEqualInnerSpace() && !getEdgeSpace().equals(new Rect(0, 0, 0, 0))) {
+                Log.w("DividerItemDecoration", "Custom edge space for span of GridLayoutManager is not support.");
+            }
+
+            boolean isVertical = layoutManager.getOrientation() == LinearLayoutManager.VERTICAL;
             int spanCount = layoutManager.getSpanCount();
             int spanIndex = position % spanCount;
 
             int crossCount = itemCount / spanCount + 1;
             int crossIndex = position / spanCount;
 
-            if (layoutManager.getOrientation() == LinearLayoutManager.HORIZONTAL) {
-                if (isEdgeSpacing()) {
-                    top = getVerticalSpace() * (spanCount - spanIndex) / spanCount;
-                    bottom = getVerticalSpace() * (spanIndex + 1) / spanCount;
+            int spanSpace = isVertical ? getHorizontalSpace() : getVerticalSpace();
+            int crossSpace = isVertical ? getVerticalSpace() : getHorizontalSpace();
 
-                    if (!layoutManager.getReverseLayout()) {
-                        left = getHorizontalSpace() * (crossCount - crossIndex) / crossCount;
-                        right = getHorizontalSpace() * (crossIndex + 1) / crossCount;
-                    }
-                    else {
-                        right = getHorizontalSpace() * (crossCount - crossIndex) / crossCount;
-                        left = getHorizontalSpace() * (crossIndex + 1) / crossCount;
-                    }
-                }
-                else {
-                    top = getVerticalSpace() * spanIndex / spanCount;
-                    bottom = getVerticalSpace() * (spanCount - spanIndex - 1) / spanCount;
+            int spanEdgeStart = isVertical ? edgeSpace.left : edgeSpace.top;
+            int spanEdgeEnd = isVertical ? edgeSpace.right : edgeSpace.bottom;
+            int crossEdgeStart = isVertical ? edgeSpace.top : edgeSpace.left;
+            int crossEdgeEnd = isVertical ? edgeSpace.bottom : edgeSpace.right;
 
-                    if (!layoutManager.getReverseLayout()) {
-                        left = getHorizontalSpace() * crossIndex / crossCount;
-                        right = getHorizontalSpace() * (crossCount - crossIndex - 1) / crossCount;
-                    }
-                    else {
-                        right = getHorizontalSpace() * crossIndex / crossCount;
-                        left = getHorizontalSpace() * (crossCount - crossIndex - 1) / crossCount;
-                    }
-                }
+            int spanStart = isEdgeSpaceEqualInnerSpace() ? (spanSpace * (spanCount - spanIndex) / spanCount) : (spanSpace * spanIndex / spanCount);
+            int spanEnd = isEdgeSpaceEqualInnerSpace() ? (spanSpace * (spanIndex + 1) / spanCount) : (spanSpace * (spanCount - spanIndex - 1) / spanCount);
+
+            int crossStart = (crossIndex == 0) ? crossEdgeStart : 0;
+            int crossEnd = (crossIndex == crossCount - 1) ? crossEdgeEnd : crossSpace;
+
+            if (isVertical) {
+                rect.set(spanStart, crossStart, spanEnd, crossEnd);
             }
             else {
-                if (isEdgeSpacing()) {
-                    left = getHorizontalSpace() * (spanCount - spanIndex) / spanCount;
-                    right = getHorizontalSpace() * (spanIndex + 1) / spanCount;
+                rect.set(crossStart, spanStart, crossEnd, spanEnd);
+            }
 
-                    if (!layoutManager.getReverseLayout()) {
-                        top = getVerticalSpace() * (crossCount - crossIndex) / crossCount;
-                        bottom = getVerticalSpace() * (crossIndex + 1) / crossCount;
-                    }
-                    else {
-                        bottom = getVerticalSpace() * (crossCount - crossIndex) / crossCount;
-                        top = getVerticalSpace() * (crossIndex + 1) / crossCount;
-                    }
-                }
-                else {
-                    left = getHorizontalSpace() * spanIndex / spanCount;
-                    right = getHorizontalSpace() * (spanCount - spanIndex - 1) / spanCount;
-
-                    if (!layoutManager.getReverseLayout()) {
-                        top = getVerticalSpace() * crossIndex / crossCount;
-                        bottom = getVerticalSpace() * (crossCount - crossIndex - 1) / crossCount;
-                    }
-                    else {
-                        bottom = getVerticalSpace() * crossIndex / crossCount;
-                        top = getVerticalSpace() * (crossCount - crossIndex - 1) / crossCount;
-                    }
-                }
+            if (layoutManager.getReverseLayout()) {
+                rect.set(rect.right, rect.bottom, rect.left, rect.top);
             }
         }
         else if (parent.getLayoutManager() instanceof LinearLayoutManager) {
             LinearLayoutManager layoutManager = (LinearLayoutManager) parent.getLayoutManager();
+            boolean isVertical = layoutManager.getOrientation() == LinearLayoutManager.VERTICAL;
 
-            if (layoutManager.getOrientation() == LinearLayoutManager.HORIZONTAL) {
-                if (isEdgeSpacing()) {
-                    top = bottom = getVerticalSpace();
+            int extendSpace = (isVertical) ? getHorizontalSpace() : getVerticalSpace();
+            int crossSpace = (isVertical) ? getVerticalSpace() : getHorizontalSpace();
 
-                    if (!layoutManager.getReverseLayout()) {
-                        left = getHorizontalSpace() * (itemCount - position) / itemCount;
-                        right = getHorizontalSpace() * (position + 1) / itemCount;
-                    }
-                    else {
-                        right = getHorizontalSpace() * (itemCount - position) / itemCount;
-                        left = getHorizontalSpace() * (position + 1) / itemCount;
-                    }
-                }
-                else {
-                    if (!layoutManager.getReverseLayout()) {
-                        left = getHorizontalSpace() * position / itemCount;
-                        right = getHorizontalSpace() * (itemCount - position - 1) / itemCount;
-                    }
-                    else {
-                        right = getHorizontalSpace() * position / itemCount;
-                        left = getHorizontalSpace() * (itemCount - position - 1) / itemCount;
-                    }
-                }
+            int extendEdgeStart = isVertical ? edgeSpace.left : edgeSpace.top;
+            int extendEdgeEnd = isVertical ? edgeSpace.right : edgeSpace.bottom;
+            int crossEdgeStart = isVertical ? edgeSpace.top : edgeSpace.left;
+            int crossEdgeEnd = isVertical ? edgeSpace.bottom : edgeSpace.right;
+
+            int extendStart = Math.max(extendSpace, extendEdgeStart);
+            int extentEnd = Math.max(extendSpace, extendEdgeEnd);
+
+            int crossStart = (position == 0) ? crossEdgeStart : 0;
+            int crossEnd = (position == itemCount - 1) ? crossEdgeEnd : crossSpace;
+
+            if (isVertical) {
+                rect.set(extendStart, crossStart, extentEnd, crossEnd);
             }
             else {
-                if (isEdgeSpacing()) {
-                    left = right = getHorizontalSpace();
+                rect.set(crossStart, extendStart, crossEnd, extentEnd);
+            }
 
-                    if (!layoutManager.getReverseLayout()) {
-                        top = getVerticalSpace() * (itemCount - position) / itemCount;
-                        bottom = getVerticalSpace() * (position + 1) / itemCount;
-                    }
-                    else {
-                        bottom = getVerticalSpace() * (itemCount - position) / itemCount;
-                        top = getVerticalSpace() * (position + 1) / itemCount;
-                    }
-                }
-                else {
-                    if (!layoutManager.getReverseLayout()) {
-                        top = getVerticalSpace() * position / itemCount;
-                        bottom = getVerticalSpace() * (itemCount - position - 1) / itemCount;
-                    }
-                    else {
-                        bottom = getVerticalSpace() * position / itemCount;
-                        top = getVerticalSpace() * (itemCount - position - 1) / itemCount;
-                    }
-                }
+            if (layoutManager.getReverseLayout()) {
+                rect.set(rect.right, rect.bottom, rect.left, rect.top);
             }
         }
 
-        outRect.set(left, top, right, bottom);
+        outRect.set(rect);
     }
 
 

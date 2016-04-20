@@ -15,63 +15,121 @@ import android.view.View;
  * 注意：此ItemDecoration假设所有item包含其他ItemDecoration的宽高都相同
  * 注意：若RecyclerView不止有一个ItemDecoration，需将此ItemDecoration放置到最后
  */
-public class CenterItemDecoration extends RecyclerView.ItemDecoration {
+public class CenterItemDecoration extends DividerItemDecoration {
     final CenterItemDecoration self = this;
+
+    /* Constructors */
+    public CenterItemDecoration() {
+        this(false);
+    }
+
+    public CenterItemDecoration(boolean isSeparate) {
+        this(isSeparate, 0, 0);
+    }
+
+    public CenterItemDecoration(int innerSpace) {
+        this(false, innerSpace, 0);
+    }
+
+    public CenterItemDecoration(boolean isSeparate, int outerSpace) {
+        this(isSeparate, 0, outerSpace);
+    }
+
+    public CenterItemDecoration(boolean isSeparate, int innerSpace, int outerSpace) {
+        this.separate = isSeparate;
+        this.innerSpace = innerSpace;
+        this.outerSpace = outerSpace;
+    }
     
-    
+    /* Properties */
+    private boolean separate;
+    public CenterItemDecoration setSeparate(boolean separate) {
+        this.separate = separate;
+        return this;
+    }
+    public boolean isSeparate() {
+        return this.separate;
+    }
+
+    private int innerSpace;
+    public CenterItemDecoration setInnerSpace(int innerSpace) {
+        this.innerSpace = innerSpace;
+        return this;
+    }
+    public int getInnerSpace() {
+        return this.innerSpace;
+    }
+
+    private int outerSpace;
+    public CenterItemDecoration setOuterSpace(int outerSpace) {
+        this.outerSpace = outerSpace;
+        return this;
+    }
+    public int getOuterSpace() {
+        return this.outerSpace;
+    }
+
     /* Overrides */
     @Override
+    public boolean isEdgeSpaceEqualInnerSpace() {
+        return false;
+    }
+
+    @Override
     public void getItemOffsets(Rect outRect, View view, RecyclerView parent, RecyclerView.State state) {
-        //We can supply forced insets for each item view here in the Rect
+        if (!parent.getLayoutManager().getClass().equals(LinearLayoutManager.class)) {
+            return;
+        }
+
+        if (parent.computeHorizontalScrollRange() > parent.getWidth()
+                || parent.computeVerticalScrollRange() > parent.getHeight()) {
+            return;
+        }
+
         int position = parent.getChildAdapterPosition(view);
+        int itemCount = parent.getAdapter().getItemCount();
+        int parentHorizontalSpace = parent.getWidth() - parent.getPaddingLeft() - parent.getPaddingRight();
+        int parentVerticalSpace = parent.getHeight() - parent.getPaddingTop() - parent.getPaddingBottom();
 
-        int left, top, right, bottom;
-        left = top = right = bottom = 0;
+        int itemLength = 0;
+        LinearLayoutManager layoutManager = (LinearLayoutManager) parent.getLayoutManager();
+        boolean isVertical = layoutManager.getOrientation() == LinearLayoutManager.VERTICAL;
+        if (isVertical) {
+            view.measure(View.MeasureSpec.UNSPECIFIED, View.MeasureSpec.UNSPECIFIED);
+            itemLength = view.getMeasuredHeight() + layoutManager.getTopDecorationHeight(view) + layoutManager.getBottomDecorationHeight(view);
+        }
+        else {
+            view.measure(View.MeasureSpec.UNSPECIFIED, View.MeasureSpec.UNSPECIFIED);
+            itemLength = view.getMeasuredWidth() + layoutManager.getLeftDecorationWidth(view) + layoutManager.getRightDecorationWidth(view);
+        }
 
-        if (parent.getLayoutManager() instanceof LinearLayoutManager) {
-            LinearLayoutManager layoutManager = (LinearLayoutManager) parent.getLayoutManager();
+        if (!isSeparate()) {
+            if (isVertical) {
+                setVerticalSpace(getInnerSpace());
 
-            if (position == 0) {
-                if (layoutManager.getOrientation() == LinearLayoutManager.HORIZONTAL) {
-                    int itemWidth = view.getLayoutParams().width;
-                    if (itemWidth >= 0) {
-                        view.measure(View.MeasureSpec.makeMeasureSpec(itemWidth, View.MeasureSpec.EXACTLY), View.MeasureSpec.UNSPECIFIED);
-                    }
-                    else {
-                        view.measure(View.MeasureSpec.UNSPECIFIED, View.MeasureSpec.UNSPECIFIED);
-                    }
-
-                    itemWidth = view.getMeasuredWidth() + layoutManager.getLeftDecorationWidth(view) + layoutManager.getRightDecorationWidth(view);
-
-                    if (!layoutManager.getReverseLayout()) {
-                        left = Math.max(left, (parent.getWidth() - itemWidth * parent.getAdapter().getItemCount()) / 2);
-                    }
-                    else {
-                        right = Math.max(right, (parent.getWidth() - itemWidth * parent.getAdapter().getItemCount()) / 2);
-                    }
-                }
-                else {
-                    int itemHeight = view.getLayoutParams().height;
-                    if (itemHeight >= 0) {
-                        view.measure(View.MeasureSpec.UNSPECIFIED, View.MeasureSpec.makeMeasureSpec(itemHeight, View.MeasureSpec.EXACTLY));
-                    }
-                    else {
-                        view.measure(View.MeasureSpec.UNSPECIFIED, View.MeasureSpec.UNSPECIFIED);
-                    }
-
-                    itemHeight = view.getMeasuredHeight() + layoutManager.getTopDecorationHeight(view) + layoutManager.getBottomDecorationHeight(view);
-
-                    if (!layoutManager.getReverseLayout()) {
-                        top = Math.max(top, (parent.getHeight() - itemHeight * parent.getAdapter().getItemCount()) / 2);
-                    }
-                    else {
-                        bottom = Math.max(bottom, (parent.getHeight() - itemHeight * parent.getAdapter().getItemCount()) / 2);
-                    }
-                }
+                int outerSpace = (parentVerticalSpace - itemLength * itemCount - getInnerSpace() * (itemCount - 1)) / 2;
+                setEdgeSpace(0, outerSpace, 0, outerSpace);
+            }
+            else {
+                setHorizontalSpace(getInnerSpace());
+                int outerSpace = (parentHorizontalSpace - itemLength * itemCount - getInnerSpace() * (itemCount - 1)) / 2;
+                setEdgeSpace(outerSpace, 0, outerSpace, 0);
+            }
+        }
+        else {
+            if (isVertical) {
+                setEdgeSpace(0, getOuterSpace(), 0, getOuterSpace());
+                int innerSpace = (parentVerticalSpace - itemLength * itemCount - getOuterSpace() * 2) / (itemCount - 1);
+                setVerticalSpace(innerSpace);
+            }
+            else {
+                setEdgeSpace(getOuterSpace(), 0, getOuterSpace(), 0);
+                int innerSpace = (parentHorizontalSpace - itemLength * itemCount - getOuterSpace() * 2) / (itemCount - 1);
+                setHorizontalSpace(innerSpace);
             }
         }
 
-        outRect.set(left, top, right, bottom);
+        super.getItemOffsets(outRect, view, parent, state);
     }
     
     
