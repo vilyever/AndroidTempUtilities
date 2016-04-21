@@ -284,7 +284,7 @@ public class SectionAdapter extends SelectionAdapter {
                 }
 
                 @Override
-                public boolean shouldPreventDeselectItem(SelectionAdapter adapter, int position, boolean fromUser) {
+                public boolean shouldDeselectItem(SelectionAdapter adapter, int position, boolean fromUser) {
                     SectionItemIndex sectionItemIndex = getSectionItemIndex(position);
                     if (sectionItemIndex.item == SectionItemIndex.NoIndex) {
                         return false;

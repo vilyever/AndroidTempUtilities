@@ -110,13 +110,13 @@ public class SelectionAdapter extends RecyclerViewAdapter implements SelectionVi
         void onItemSelected(SelectionAdapter adapter, int position, boolean fromUser);
 
         /**
-         * 是否阻止item被取消选中
+         * 是否允许item被取消选中
          * 注意：此时已选中的item已被点击
          * @param adapter adapter
          * @param position item的position
          * @return 是否允许取消选中
          */
-        boolean shouldPreventDeselectItem(SelectionAdapter adapter, int position, boolean fromUser);
+        boolean shouldDeselectItem(SelectionAdapter adapter, int position, boolean fromUser);
 
         /**
          * item已被取消选中
@@ -128,12 +128,12 @@ public class SelectionAdapter extends RecyclerViewAdapter implements SelectionVi
         class SimpleOnItemSelectedListener implements SelectionDelegate {
             @Override
             public boolean shouldSelectItem(SelectionAdapter adapter, int position, boolean fromUser) {
-                return false;
+                return adapter.getSelectionMode() != SelectionMode.None;
             }
 
             @Override
-            public boolean shouldPreventDeselectItem(SelectionAdapter adapter, int position, boolean fromUser) {
-                return false;
+            public boolean shouldDeselectItem(SelectionAdapter adapter, int position, boolean fromUser) {
+                return adapter.getSelectionMode() == SelectionMode.Multiple;
             }
 
             @Override
@@ -324,7 +324,7 @@ public class SelectionAdapter extends RecyclerViewAdapter implements SelectionVi
         }
 
         if (getItemSelectionStateArray().get(position)
-                && !getSelectionDelegate().shouldPreventDeselectItem(this, position, fromUser)) {
+                && getSelectionDelegate().shouldDeselectItem(this, position, fromUser)) {
             getItemSelectionStateArray().put(position, false);
 
 //            notifyItemChanged(position);

@@ -124,7 +124,7 @@ public class BaseRecyclerViewController extends ViewController {
             }
 
             @Override
-            public boolean shouldPreventDeselectItem(SelectionAdapter adapter, int position, boolean fromUser) {
+            public boolean shouldDeselectItem(SelectionAdapter adapter, int position, boolean fromUser) {
                 return false;
             }
 
