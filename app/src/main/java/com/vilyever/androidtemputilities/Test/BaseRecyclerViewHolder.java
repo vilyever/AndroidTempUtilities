@@ -35,7 +35,12 @@ public class BaseRecyclerViewHolder extends SelectionViewHolder {
 
         this.itemView.setBackgroundColor(RandomData.getColor());
 
-        if (isSelected()) {
+
+    }
+
+    @Override
+    protected SelectionViewHolder setSelected(boolean selected) {
+        if (selected) {
             getTitleLabel().setTextColor(RandomData.getColor());
             getTitleLabel().setText("seleted item " + getAdapterPosition());
         }
@@ -43,6 +48,8 @@ public class BaseRecyclerViewHolder extends SelectionViewHolder {
             getTitleLabel().setTextColor(Color.BLACK);
             getTitleLabel().setText("item " + getAdapterPosition());
         }
+
+        return super.setSelected(selected);
     }
 
     /* Interfaces */

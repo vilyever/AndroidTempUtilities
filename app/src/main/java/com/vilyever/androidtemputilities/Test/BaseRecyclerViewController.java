@@ -4,6 +4,7 @@ import android.content.Context;
 import android.support.annotation.CallSuper;
 import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
+import android.util.Log;
 import android.view.ViewGroup;
 
 import com.vilyever.androidtemputilities.R;
@@ -112,10 +113,11 @@ public class BaseRecyclerViewController extends ViewController {
 
             }
         });
-        adapter.setSelectionDelegate(new SelectionAdapter.SelectionDelegate() {
+        adapter.setSelectionDelegate(new SelectionAdapter.SelectionDelegate.SimpleOnItemSelectedListener() {
             @Override
             public boolean shouldSelectItem(SelectionAdapter adapter, int position, boolean fromUser) {
-                return false;
+                Log.d("tttest", "shouldSelectItem " + position + "    , fromUser " + fromUser);
+                return true;
             }
 
             @Override
@@ -124,13 +126,9 @@ public class BaseRecyclerViewController extends ViewController {
             }
 
             @Override
-            public boolean shouldDeselectItem(SelectionAdapter adapter, int position, boolean fromUser) {
-                return false;
-            }
-
-            @Override
-            public void onItemDeselected(SelectionAdapter adapter, int position, boolean fromUser) {
-
+            public boolean shouldDeselectItem(SelectionAdapter adapter, int position, int willSelectPosition, boolean fromUser) {
+                Log.d("tttest", "shouldDeselectItem " + position + "    , willSelectPosition " + willSelectPosition);
+                return super.shouldDeselectItem(adapter, position, willSelectPosition, fromUser);
             }
         });
         return adapter;

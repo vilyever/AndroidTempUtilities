@@ -116,7 +116,7 @@ public class SelectionAdapter extends RecyclerViewAdapter implements SelectionVi
          * @param position item的position
          * @return 是否允许取消选中
          */
-        boolean shouldDeselectItem(SelectionAdapter adapter, int position, boolean fromUser);
+        boolean shouldDeselectItem(SelectionAdapter adapter, int position, int willSelectPosition, boolean fromUser);
 
         /**
          * item已被取消选中
@@ -132,7 +132,10 @@ public class SelectionAdapter extends RecyclerViewAdapter implements SelectionVi
             }
 
             @Override
-            public boolean shouldDeselectItem(SelectionAdapter adapter, int position, boolean fromUser) {
+            public boolean shouldDeselectItem(SelectionAdapter adapter, int position, int willSelectPosition, boolean fromUser) {
+                if (adapter.getSelectionMode() == SelectionMode.Single) {
+                    return willSelectPosition != RecyclerView.NO_POSITION;
+                }
                 return adapter.getSelectionMode() == SelectionMode.Multiple;
             }
 
@@ -252,7 +255,7 @@ public class SelectionAdapter extends RecyclerViewAdapter implements SelectionVi
             case Single:
                 int preSingleSelectedPosition = getSingleSelectedPosition();
                 if (internalValidatePosition(preSingleSelectedPosition)
-                        && !internalDeselectItem(preSingleSelectedPosition, fromUser)) {
+                        && !internalDeselectItem(preSingleSelectedPosition, position, fromUser)) {
                     break;
                 }
                 if (preSingleSelectedPosition == position) {
@@ -312,19 +315,25 @@ public class SelectionAdapter extends RecyclerViewAdapter implements SelectionVi
         return false;
     }
 
+
+    protected boolean internalDeselectItem(int position, boolean fromUser) {
+        return internalDeselectItem(position, RecyclerView.NO_POSITION, fromUser);
+    }
+
     /**
      * 反选指定item
      * @param position
+     * @param willSelectPosition 欲选中的item的position
      * @param fromUser 是否由user触屏操作引起
      * @return 指定item的状态是否为未选中，如果该item在调用此方法前的状态为未选中，此时仍然返回true
      */
-    protected boolean internalDeselectItem(int position, boolean fromUser) {
+    protected boolean internalDeselectItem(int position, int willSelectPosition, boolean fromUser) {
         if (!internalValidatePosition(position)) {
             return false;
         }
 
         if (getItemSelectionStateArray().get(position)
-                && getSelectionDelegate().shouldDeselectItem(this, position, fromUser)) {
+                && getSelectionDelegate().shouldDeselectItem(this, position, willSelectPosition, fromUser)) {
             getItemSelectionStateArray().put(position, false);
 
 //            notifyItemChanged(position);

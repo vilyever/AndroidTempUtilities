@@ -161,7 +161,7 @@ public abstract class RadioController extends ViewController {
         if (this.itemAdapter == null) {
             this.itemAdapter = new SelectionAdapter();
             this.itemAdapter.setSelectionMode(SelectionAdapter.SelectionMode.Single);
-            this.itemAdapter.setSelectionDelegate(new SelectionAdapter.SelectionDelegate() {
+            this.itemAdapter.setSelectionDelegate(new SelectionAdapter.SelectionDelegate.SimpleOnItemSelectedListener() {
                 @Override
                 public boolean shouldSelectItem(SelectionAdapter adapter, int position, boolean fromUser) {
                     return true;
@@ -170,16 +170,6 @@ public abstract class RadioController extends ViewController {
                 @Override
                 public void onItemSelected(SelectionAdapter adapter, int position, boolean fromUser) {
                     self.onItemSelected(position);
-                }
-
-                @Override
-                public boolean shouldDeselectItem(SelectionAdapter adapter, int position, boolean fromUser) {
-                    return false;
-                }
-
-                @Override
-                public void onItemDeselected(SelectionAdapter adapter, int position, boolean fromUser) {
-
                 }
             });
             this.itemAdapter.setItemDatasource(new RecyclerViewAdapter.ItemDatasource() {

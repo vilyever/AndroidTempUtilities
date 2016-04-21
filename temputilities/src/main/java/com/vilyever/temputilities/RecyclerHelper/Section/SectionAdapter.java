@@ -176,7 +176,7 @@ public class SectionAdapter extends SelectionAdapter {
          * @param item item的所在section的position
          * @return 是否允许取消选中
          */
-        boolean shouldPreventDeselectItem(SectionAdapter adapter, int section, int item, boolean fromUser);
+        boolean shouldDeselectItem(SectionAdapter adapter, int section, int item, int willSelectSection, int willSelectItem, boolean fromUser);
 
         /**
          * item已被取消选中
@@ -198,8 +198,8 @@ public class SectionAdapter extends SelectionAdapter {
             }
 
             @Override
-            public boolean shouldPreventDeselectItem(SectionAdapter adapter, int section, int item, boolean fromUser) {
-                return false;
+            public boolean shouldDeselectItem(SectionAdapter adapter, int section, int item, int willSelectSection, int willSelectItem, boolean fromUser) {
+                return true;
             }
 
             @Override
@@ -267,7 +267,7 @@ public class SectionAdapter extends SelectionAdapter {
     @Override
     public SelectionDelegate getSelectionDelegate() {
         if (this.interceptSelectionDelegate == null) {
-            this.interceptSelectionDelegate = new SelectionDelegate() {
+            this.interceptSelectionDelegate = new SelectionDelegate.SimpleOnItemSelectedListener() {
                 @Override
                 public boolean shouldSelectItem(SelectionAdapter adapter, int position, boolean fromUser) {
                     SectionItemIndex sectionItemIndex = getSectionItemIndex(position);
@@ -284,12 +284,13 @@ public class SectionAdapter extends SelectionAdapter {
                 }
 
                 @Override
-                public boolean shouldDeselectItem(SelectionAdapter adapter, int position, boolean fromUser) {
+                public boolean shouldDeselectItem(SelectionAdapter adapter, int position, int willSelectPosition, boolean fromUser) {
                     SectionItemIndex sectionItemIndex = getSectionItemIndex(position);
                     if (sectionItemIndex.item == SectionItemIndex.NoIndex) {
-                        return false;
+                        return true;
                     }
-                    return getSectionSelectionDelegate().shouldPreventDeselectItem(self, sectionItemIndex.section, sectionItemIndex.item, fromUser);
+                    SectionItemIndex willSelectSectionItemIndex = getSectionItemIndex(position);
+                    return getSectionSelectionDelegate().shouldDeselectItem(self, sectionItemIndex.section, sectionItemIndex.item, willSelectSectionItemIndex.section, willSelectSectionItemIndex.item, fromUser);
                 }
 
                 @Override
