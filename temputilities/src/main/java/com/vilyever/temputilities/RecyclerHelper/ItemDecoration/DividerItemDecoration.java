@@ -98,10 +98,18 @@ public class DividerItemDecoration extends RecyclerView.ItemDecoration {
     /* Overrides */
     @Override
     public void getItemOffsets(Rect outRect, View view, RecyclerView parent, RecyclerView.State state) {
+        if (parent.getAdapter() == null) {
+            return;
+        }
+
         int position = parent.getChildAdapterPosition(view);
         int itemCount = parent.getAdapter().getItemCount();
         int parentHorizontalSpace = parent.getWidth() - parent.getPaddingLeft() - parent.getPaddingRight();
         int parentVerticalSpace = parent.getHeight() - parent.getPaddingTop() - parent.getPaddingBottom();
+
+        if (itemCount == 0) {
+            return;
+        }
 
         Rect rect = new Rect(0, 0, 0, 0);
 

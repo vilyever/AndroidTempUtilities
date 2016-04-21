@@ -77,6 +77,10 @@ public class CenterItemDecoration extends DividerItemDecoration {
 
     @Override
     public void getItemOffsets(Rect outRect, View view, RecyclerView parent, RecyclerView.State state) {
+        if (parent.getAdapter() == null) {
+            return;
+        }
+
         if (!parent.getLayoutManager().getClass().equals(LinearLayoutManager.class)) {
             return;
         }
@@ -90,6 +94,10 @@ public class CenterItemDecoration extends DividerItemDecoration {
         int itemCount = parent.getAdapter().getItemCount();
         int parentHorizontalSpace = parent.getWidth() - parent.getPaddingLeft() - parent.getPaddingRight();
         int parentVerticalSpace = parent.getHeight() - parent.getPaddingTop() - parent.getPaddingBottom();
+
+        if (itemCount == 0) {
+            return;
+        }
 
         int itemLength = 0;
         LinearLayoutManager layoutManager = (LinearLayoutManager) parent.getLayoutManager();
