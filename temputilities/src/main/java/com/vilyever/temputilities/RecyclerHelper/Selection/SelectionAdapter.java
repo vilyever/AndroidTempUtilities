@@ -379,6 +379,9 @@ public class SelectionAdapter extends RecyclerViewAdapter implements SelectionVi
     }
 
     protected void internalReloadItemSelectionState(int position) {
+        if (!canNotify()) {
+            return;
+        }
         View child = getRecyclerView().getLayoutManager().findViewByPosition(position);
         if (child != null) {
             RecyclerView.ViewHolder viewHolder = getRecyclerView().getChildViewHolder(child);
