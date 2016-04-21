@@ -77,10 +77,6 @@ public class CenterItemDecoration extends DividerItemDecoration {
 
     @Override
     public void getItemOffsets(Rect outRect, View view, RecyclerView parent, RecyclerView.State state) {
-        if (parent.getAdapter() == null) {
-            return;
-        }
-
         if (!parent.getLayoutManager().getClass().equals(LinearLayoutManager.class)) {
             return;
         }
@@ -94,10 +90,6 @@ public class CenterItemDecoration extends DividerItemDecoration {
         int itemCount = parent.getAdapter().getItemCount();
         int parentHorizontalSpace = parent.getWidth() - parent.getPaddingLeft() - parent.getPaddingRight();
         int parentVerticalSpace = parent.getHeight() - parent.getPaddingTop() - parent.getPaddingBottom();
-
-        if (itemCount == 0) {
-            return;
-        }
 
         int itemLength = 0;
         LinearLayoutManager layoutManager = (LinearLayoutManager) parent.getLayoutManager();
@@ -127,12 +119,12 @@ public class CenterItemDecoration extends DividerItemDecoration {
         else {
             if (isVertical) {
                 setEdgeSpace(0, getOuterSpace(), 0, getOuterSpace());
-                int innerSpace = (parentVerticalSpace - itemLength * itemCount - getOuterSpace() * 2) / (itemCount - 1);
+                int innerSpace = itemCount <= 1 ? 0 : (parentVerticalSpace - itemLength * itemCount - getOuterSpace() * 2) / (itemCount - 1);
                 setVerticalSpace(innerSpace);
             }
             else {
                 setEdgeSpace(getOuterSpace(), 0, getOuterSpace(), 0);
-                int innerSpace = (parentHorizontalSpace - itemLength * itemCount - getOuterSpace() * 2) / (itemCount - 1);
+                int innerSpace = itemCount <= 1 ? 0 : (parentHorizontalSpace - itemLength * itemCount - getOuterSpace() * 2) / (itemCount - 1);
                 setHorizontalSpace(innerSpace);
             }
         }
