@@ -246,10 +246,6 @@ public class SelectionAdapter extends RecyclerViewAdapter implements SelectionVi
             return false;
         }
 
-        if (getItemSelectionStateArray().get(position)) {
-            return true;
-        }
-
         switch (getSelectionMode()) {
             case None:
                 return false;
@@ -259,7 +255,13 @@ public class SelectionAdapter extends RecyclerViewAdapter implements SelectionVi
                         && !internalDeselectItem(preSingleSelectedPosition, fromUser)) {
                     break;
                 }
+                if (preSingleSelectedPosition == position) {
+                    internalDeselectItem(position, true);
+                }
             case Multiple:
+                if (getItemSelectionStateArray().get(position)) {
+                    return true;
+                }
                 if (getSelectionDelegate().shouldSelectItem(this, position, fromUser)) {
                     getItemSelectionStateArray().put(position, true);
 
