@@ -218,15 +218,27 @@ public class SectionAdapter extends SelectionAdapter {
     }
     public interface SectionClickDelegate {
         /**
-         * tem被点击
+         * item被点击
          * @param adapter adapter
          * @param itemIndex item的所在section和所在section的position
          */
         void onItemClick(SectionAdapter adapter, SectionItemIndex itemIndex);
 
+        /**
+         * item被点击, 在处理完selection状态改变后回调
+         * @param adapter adapter
+         * @param itemIndex item的所在section和所在section的position
+         */
+        void onItemClickAfterSelection(SectionAdapter adapter, SectionItemIndex itemIndex);
+
         class SimpleSectionClickDelegate implements SectionClickDelegate {
             @Override
             public void onItemClick(SectionAdapter adapter, SectionItemIndex itemIndex) {
+
+            }
+
+            @Override
+            public void onItemClickAfterSelection(SectionAdapter adapter, SectionItemIndex itemIndex) {
 
             }
         }
@@ -335,6 +347,12 @@ public class SectionAdapter extends SelectionAdapter {
                 public void onItemClick(SelectionAdapter adapter, int position) {
                     SectionItemIndex sectionItemIndex = getSectionItemIndex(position);
                     getSectionClickDelegate().onItemClick((SectionAdapter) adapter, sectionItemIndex);
+                }
+
+                @Override
+                public void onItemClickAfterSelection(SelectionAdapter adapter, int position) {
+                    SectionItemIndex sectionItemIndex = getSectionItemIndex(position);
+                    getSectionClickDelegate().onItemClickAfterSelection((SectionAdapter) adapter, sectionItemIndex);
                 }
             };
         }

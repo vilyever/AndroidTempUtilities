@@ -161,15 +161,27 @@ public class SelectionAdapter extends RecyclerViewAdapter implements SelectionVi
     }
     public interface SelectionClickDelegate {
         /**
-         * item被点击
+         * item被点击, 在处理selection状态改变前回调
          * @param adapter adapter
          * @param position item的position
          */
         void onItemClick(SelectionAdapter adapter, int position);
 
+        /**
+         * item被点击, 在处理完selection状态改变后回调
+         * @param adapter adapter
+         * @param position item的position
+         */
+        void onItemClickAfterSelection(SelectionAdapter adapter, int position);
+
         class SimpleSelectionClickDelegate implements SelectionClickDelegate {
             @Override
             public void onItemClick(SelectionAdapter adapter, int position) {
+
+            }
+
+            @Override
+            public void onItemClickAfterSelection(SelectionAdapter adapter, int position) {
 
             }
         }
@@ -239,6 +251,9 @@ public class SelectionAdapter extends RecyclerViewAdapter implements SelectionVi
         int position = viewHolder.getAdapterPosition();
 
         setHandlingSelectionPosition(position);
+
+        getSelectionClickDelegate().onItemClick(this, position);
+
         switch (getSelectionMode()) {
             case None:
                 break;
@@ -255,7 +270,7 @@ public class SelectionAdapter extends RecyclerViewAdapter implements SelectionVi
                 break;
         }
 
-        getSelectionClickDelegate().onItemClick(this, position);
+        getSelectionClickDelegate().onItemClickAfterSelection(this, position);
 
         setHandlingSelectionPosition(RecyclerView.NO_POSITION);
     }
