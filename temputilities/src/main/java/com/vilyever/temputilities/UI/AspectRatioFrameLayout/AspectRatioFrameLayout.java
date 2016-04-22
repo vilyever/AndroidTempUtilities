@@ -351,7 +351,7 @@ public class AspectRatioFrameLayout extends FrameLayout {
             return DefaultAspectRatio3to4;
         }
 
-        return DefaultAspectRatioNone;
+        return flagValue;
     }
 
     /* Enums */
