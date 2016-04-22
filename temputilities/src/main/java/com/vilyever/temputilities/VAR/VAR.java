@@ -1,4 +1,4 @@
-package com.vilyever.temputilities.Property;
+package com.vilyever.temputilities.VAR;
 
 import java.util.Collections;
 import java.util.HashSet;
@@ -8,20 +8,20 @@ import java.util.Set;
 import java.util.WeakHashMap;
 
 /**
- * Property
+ * VAR
  * ESB <com.vilyever.setting.Configure>
  * Created by vilyever on 2016/4/21.
  * Feature:
  */
-public class Property<T> {
-    final Property self = this;
+public class VAR<T> {
+    final VAR self = this;
 
     private static final Object X = new Object();
 
     private T value;
     
     /* Constructors */
-    public Property(T value) {
+    public VAR(T value) {
         this.value = value;
     }
     
@@ -31,7 +31,7 @@ public class Property<T> {
         return this.value;
     }
 
-    public Property set(T value) {
+    public VAR set(T value) {
         this.value = value;
         internalNotifyValueChanged();
         return this;
@@ -54,7 +54,7 @@ public class Property<T> {
         return this.observerMap;
     }
     public interface Observer {
-        void onValueChange(Property property, Object value);
+        void onValueChange(VAR property, Object value);
     }
 
     /* Overrides */
