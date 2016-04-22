@@ -54,7 +54,7 @@ public class VAR<T> {
         return this.observerMap;
     }
     public interface Observer {
-        void onValueChange(VAR property, Object value);
+        void onValueChange(VAR var, Object value);
     }
 
     /* Overrides */

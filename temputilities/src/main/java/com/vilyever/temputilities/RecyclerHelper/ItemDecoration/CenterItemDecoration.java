@@ -90,14 +90,14 @@ public class CenterItemDecoration extends DividerItemDecoration {
         LinearLayoutManager layoutManager = (LinearLayoutManager) parent.getLayoutManager();
         boolean isVertical = layoutManager.getOrientation() == LinearLayoutManager.VERTICAL;
         if (isVertical) {
-            view.measure(View.MeasureSpec.UNSPECIFIED, View.MeasureSpec.UNSPECIFIED);
+            view.measure(View.MeasureSpec.makeMeasureSpec(parentHorizontalSpace, View.MeasureSpec.AT_MOST), View.MeasureSpec.UNSPECIFIED);
             itemLength = view.getMeasuredHeight() + layoutManager.getTopDecorationHeight(view) + layoutManager.getBottomDecorationHeight(view);
             if (itemLength * itemCount > parentVerticalSpace) {
                 return;
             }
         }
         else {
-            view.measure(View.MeasureSpec.UNSPECIFIED, View.MeasureSpec.UNSPECIFIED);
+            view.measure(View.MeasureSpec.UNSPECIFIED, View.MeasureSpec.makeMeasureSpec(parentVerticalSpace, View.MeasureSpec.AT_MOST));
             itemLength = view.getMeasuredWidth() + layoutManager.getLeftDecorationWidth(view) + layoutManager.getRightDecorationWidth(view);
             if (itemLength * itemCount > parentHorizontalSpace) {
                 return;
