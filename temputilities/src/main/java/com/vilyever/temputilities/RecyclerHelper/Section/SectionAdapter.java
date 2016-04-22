@@ -167,13 +167,6 @@ public class SectionAdapter extends SelectionAdapter {
         void onItemSelected(SectionAdapter adapter, SectionItemIndex itemIndex, boolean fromUser);
 
         /**
-         * 已被选中的item被点击
-         * @param adapter adapter
-         * @param itemIndex item的所在section和所在section的position
-         */
-        void onSelectedItemClick(SectionAdapter adapter, SectionItemIndex itemIndex);
-
-        /**
          * 将要反选item
          * 注意：此时已选中的item已被点击
          * @param adapter adapter
@@ -201,17 +194,39 @@ public class SectionAdapter extends SelectionAdapter {
             }
 
             @Override
-            public void onSelectedItemClick(SectionAdapter adapter, SectionItemIndex itemIndex) {
-
-            }
-
-            @Override
             public SectionItemIndex willDeselectItem(SectionAdapter adapter, SectionItemIndex itemIndex, boolean fromUser) {
                 return itemIndex;
             }
 
             @Override
             public void onItemDeselected(SectionAdapter adapter, SectionItemIndex itemIndex, boolean fromUser) {
+
+            }
+        }
+    }
+
+    private SectionClickDelegate sectionClickDelegate;
+    public SectionAdapter setSectionClickDelegate(SectionClickDelegate sectionClickDelegate) {
+        this.sectionClickDelegate = sectionClickDelegate;
+        return this;
+    }
+    public SectionClickDelegate getSectionClickDelegate() {
+        if (this.sectionClickDelegate == null) {
+            this.sectionClickDelegate = new SectionClickDelegate.SimpleSectionClickDelegate();
+        }
+        return this.sectionClickDelegate;
+    }
+    public interface SectionClickDelegate {
+        /**
+         * tem被点击
+         * @param adapter adapter
+         * @param itemIndex item的所在section和所在section的position
+         */
+        void onItemClick(SectionAdapter adapter, SectionItemIndex itemIndex);
+
+        class SimpleSectionClickDelegate implements SectionClickDelegate {
+            @Override
+            public void onItemClick(SectionAdapter adapter, SectionItemIndex itemIndex) {
 
             }
         }
@@ -271,6 +286,11 @@ public class SectionAdapter extends SelectionAdapter {
         throw new IllegalStateException("With SectionAdapter, we require SectionSelectionDelegate.");
     }
 
+    @Override
+    public SelectionAdapter setSelectionClickDelegate(SelectionClickDelegate selectionClickDelegate) {
+        throw new IllegalStateException("With SectionAdapter, we require SectionClickDelegate.");
+    }
+
     private SelectionDelegate interceptSelectionDelegate;
     @Override
     public SelectionDelegate getSelectionDelegate() {
@@ -290,12 +310,6 @@ public class SectionAdapter extends SelectionAdapter {
                 }
 
                 @Override
-                public void onSelectedItemClick(SelectionAdapter adapter, int position) {
-                    SectionItemIndex sectionItemIndex = getSectionItemIndex(position);
-                    getSectionSelectionDelegate().onSelectedItemClick((SectionAdapter) adapter, sectionItemIndex);
-                }
-
-                @Override
                 public int willDeselectItem(SelectionAdapter adapter, int position, boolean fromUser) {
                     SectionItemIndex sectionItemIndex = getSectionItemIndex(position);
                     SectionItemIndex willDeselectItemIndex = getSectionSelectionDelegate().willDeselectItem((SectionAdapter) adapter, sectionItemIndex, fromUser);
@@ -310,6 +324,21 @@ public class SectionAdapter extends SelectionAdapter {
             };
         }
         return this.interceptSelectionDelegate;
+    }
+
+    private SelectionClickDelegate interceptSelectionClickDelegate;
+    @Override
+    public SelectionClickDelegate getSelectionClickDelegate() {
+        if (this.interceptSelectionClickDelegate == null) {
+            this.interceptSelectionClickDelegate = new SelectionClickDelegate() {
+                @Override
+                public void onItemClick(SelectionAdapter adapter, int position) {
+                    SectionItemIndex sectionItemIndex = getSectionItemIndex(position);
+                    getSectionClickDelegate().onItemClick((SectionAdapter) adapter, sectionItemIndex);
+                }
+            };
+        }
+        return this.interceptSelectionClickDelegate;
     }
 
     /* Delegates */

@@ -110,13 +110,6 @@ public class SelectionAdapter extends RecyclerViewAdapter implements SelectionVi
         void onItemSelected(SelectionAdapter adapter, int position, boolean fromUser);
 
         /**
-         * 已被选中的item被点击
-         * @param adapter adapter
-         * @param position item的position
-         */
-        void onSelectedItemClick(SelectionAdapter adapter, int position);
-
-        /**
          * 将要反选item
          * 注意：此时已选中的item已被点击
          * @param adapter adapter
@@ -144,17 +137,39 @@ public class SelectionAdapter extends RecyclerViewAdapter implements SelectionVi
             }
 
             @Override
-            public void onSelectedItemClick(SelectionAdapter adapter, int position) {
-
-            }
-
-            @Override
             public int willDeselectItem(SelectionAdapter adapter, int position, boolean fromUser) {
                 return position;
             }
 
             @Override
             public void onItemDeselected(SelectionAdapter adapter, int position, boolean fromUser) {
+
+            }
+        }
+    }
+
+    private SelectionClickDelegate selectionClickDelegate;
+    public SelectionAdapter setSelectionClickDelegate(SelectionClickDelegate selectionClickDelegate) {
+        this.selectionClickDelegate = selectionClickDelegate;
+        return this;
+    }
+    public SelectionClickDelegate getSelectionClickDelegate() {
+        if (this.selectionClickDelegate == null) {
+            this.selectionClickDelegate = new SelectionClickDelegate.SimpleSelectionClickDelegate();
+        }
+        return this.selectionClickDelegate;
+    }
+    public interface SelectionClickDelegate {
+        /**
+         * item被点击
+         * @param adapter adapter
+         * @param position item的position
+         */
+        void onItemClick(SelectionAdapter adapter, int position);
+
+        class SimpleSelectionClickDelegate implements SelectionClickDelegate {
+            @Override
+            public void onItemClick(SelectionAdapter adapter, int position) {
 
             }
         }
@@ -239,6 +254,9 @@ public class SelectionAdapter extends RecyclerViewAdapter implements SelectionVi
                 }
                 break;
         }
+
+        getSelectionClickDelegate().onItemClick(this, position);
+
         setHandlingSelectionPosition(RecyclerView.NO_POSITION);
     }
 
@@ -275,7 +293,6 @@ public class SelectionAdapter extends RecyclerViewAdapter implements SelectionVi
                 int preSingleSelectedPosition = getSingleSelectedPosition();
 
                 if (position == preSingleSelectedPosition) {
-                    getSelectionDelegate().onSelectedItemClick(this, position);
                     return true;
                 }
 

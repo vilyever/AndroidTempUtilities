@@ -118,11 +118,6 @@ public class BaseRecyclerViewController extends ViewController {
             public void onItemSelected(SelectionAdapter adapter, int position, boolean fromUser) {
                 Log.d("tttest", "onItemSelected " + position);
             }
-
-            @Override
-            public void onSelectedItemClick(SelectionAdapter adapter, int position) {
-                Log.d("tttest", "onSelectedItemClick " + position);
-            }
         });
         return adapter;
     }
