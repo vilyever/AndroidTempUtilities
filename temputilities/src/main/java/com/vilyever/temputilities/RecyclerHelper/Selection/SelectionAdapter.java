@@ -254,12 +254,10 @@ public class SelectionAdapter extends RecyclerViewAdapter implements SelectionVi
                 return false;
             case Single:
                 int preSingleSelectedPosition = getSingleSelectedPosition();
+                int willSelectPosition = (position == preSingleSelectedPosition) ? RecyclerView.NO_POSITION : position;
                 if (internalValidatePosition(preSingleSelectedPosition)
-                        && !internalDeselectItem(preSingleSelectedPosition, position, fromUser)) {
+                        && !internalDeselectItem(preSingleSelectedPosition, willSelectPosition, fromUser)) {
                     break;
-                }
-                if (preSingleSelectedPosition == position) {
-                    internalDeselectItem(position, true);
                 }
             case Multiple:
                 if (getItemSelectionStateArray().get(position)) {
