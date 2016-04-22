@@ -88,7 +88,7 @@ public class SelectionAdapter extends RecyclerViewAdapter implements SelectionVi
     }
     public SelectionDelegate getSelectionDelegate() {
         if (this.selectionDelegate == null) {
-            this.selectionDelegate = new SelectionDelegate.SimpleOnItemSelectedListener();
+            this.selectionDelegate = new SelectionDelegate.SimpleSelectionDelegate();
         }
         return this.selectionDelegate;
     }
@@ -125,7 +125,7 @@ public class SelectionAdapter extends RecyclerViewAdapter implements SelectionVi
          */
         void onItemDeselected(SelectionAdapter adapter, int position, boolean fromUser);
 
-        class SimpleOnItemSelectedListener implements SelectionDelegate {
+        class SimpleSelectionDelegate implements SelectionDelegate {
             @Override
             public int willSelectItem(SelectionAdapter adapter, int position, boolean fromUser) {
                 return position;

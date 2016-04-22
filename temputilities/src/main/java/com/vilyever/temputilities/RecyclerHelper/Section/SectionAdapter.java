@@ -307,7 +307,7 @@ public class SectionAdapter extends SelectionAdapter {
     @Override
     public SelectionDelegate getSelectionDelegate() {
         if (this.interceptSelectionDelegate == null) {
-            this.interceptSelectionDelegate = new SelectionDelegate.SimpleOnItemSelectedListener() {
+            this.interceptSelectionDelegate = new SelectionDelegate.SimpleSelectionDelegate() {
                 @Override
                 public int willSelectItem(SelectionAdapter adapter, int position, boolean fromUser) {
                     SectionItemIndex sectionItemIndex = getSectionItemIndex(position);
