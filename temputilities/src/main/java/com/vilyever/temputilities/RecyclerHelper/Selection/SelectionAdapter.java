@@ -194,6 +194,15 @@ public class SelectionAdapter extends RecyclerViewAdapter implements SelectionVi
         return this.itemSelectionStateArray;
     }
 
+    private int handlingSelectionPosition = RecyclerView.NO_POSITION;
+    protected SelectionAdapter setHandlingSelectionPosition(int handlingSelectionPosition) {
+        this.handlingSelectionPosition = handlingSelectionPosition;
+        return this;
+    }
+    public int getHandlingSelectionPosition() {
+        return this.handlingSelectionPosition;
+    }
+
     /* Overrides */
     @Override
     @CallSuper
@@ -214,6 +223,7 @@ public class SelectionAdapter extends RecyclerViewAdapter implements SelectionVi
     public void onItemViewClick(SelectionViewHolder viewHolder) {
         int position = viewHolder.getAdapterPosition();
 
+        setHandlingSelectionPosition(position);
         switch (getSelectionMode()) {
             case None:
                 break;
@@ -229,7 +239,7 @@ public class SelectionAdapter extends RecyclerViewAdapter implements SelectionVi
                 }
                 break;
         }
-
+        setHandlingSelectionPosition(RecyclerView.NO_POSITION);
     }
 
     @Override
