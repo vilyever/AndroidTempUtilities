@@ -21,7 +21,7 @@ public class TestCenterItemDecorationController extends BaseRecyclerViewControll
     public TestCenterItemDecorationController(Context context) {
         super(context);
 
-        setItemCount(3);
+        setItemCount(1);
     }
     
     
@@ -47,7 +47,7 @@ public class TestCenterItemDecorationController extends BaseRecyclerViewControll
     @Override
     protected RecyclerView.LayoutManager innerGetLayoutManager() {
 //        return super.innerGetLayoutManager();
-        return new LinearLayoutManager(getContext(), LinearLayoutManager.HORIZONTAL, true);
+        return new LinearLayoutManager(getContext(), LinearLayoutManager.HORIZONTAL, false);
     }
 
 

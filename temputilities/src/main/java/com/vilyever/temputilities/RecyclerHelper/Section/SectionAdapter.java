@@ -62,16 +62,16 @@ public class SectionAdapter extends SelectionAdapter {
         return sectionItemIndex;
     }
 
-    public boolean selectSectionItem(int section, int item) {
-        return internalSelectSectionItem(section, item, false);
+    public boolean selectSectionItem(SectionItemIndex itemIndex) {
+        return internalSelectSectionItem(itemIndex, false);
     }
 
     public boolean selectSection(int section) {
         return internalSelectSection(section, false);
     }
 
-    public boolean deselectSectionItem(int section, int item) {
-        return internalDeselectSectionItem(section, item, false);
+    public boolean deselectSectionItem(SectionItemIndex itemIndex) {
+        return internalDeselectSectionItem(itemIndex, false);
     }
 
     public boolean deselectSection(int section) {
@@ -151,59 +151,67 @@ public class SectionAdapter extends SelectionAdapter {
     public interface SectionSelectionDelegate {
 
         /**
-         * 是否允许item被选中
+         * 将要选中item
          * 注意：此时item已被点击
          * @param adapter adapter
-         * @param section item的所在section
-         * @param item item的所在section的position
-         * @return 是否允许选中
+         * @param itemIndex item的所在section和所在section的position
+         * @return 返回itemIndex表示选中此项，返回其他SectionItemIndex表示选中其他项，返回null表示不选中此项
          */
-        boolean shouldSelectItem(SectionAdapter adapter, int section, int item, boolean fromUser);
+        SectionItemIndex willSelectItem(SectionAdapter adapter, SectionItemIndex itemIndex, boolean fromUser);
 
         /**
          * item已被选中
          * @param adapter adapter
-         * @param section item的所在section
-         * @param item item的所在section的position
+         * @param itemIndex item的所在section和所在section的position
          */
-        void onItemSelected(SectionAdapter adapter, int section, int item, boolean fromUser);
+        void onItemSelected(SectionAdapter adapter, SectionItemIndex itemIndex, boolean fromUser);
 
         /**
-         * 是否阻止item被取消选中
+         * 已被选中的item被点击
+         * @param adapter adapter
+         * @param itemIndex item的所在section和所在section的position
+         */
+        void onSelectedItemClick(SectionAdapter adapter, SectionItemIndex itemIndex);
+
+        /**
+         * 将要反选item
          * 注意：此时已选中的item已被点击
          * @param adapter adapter
-         * @param section item的所在section
-         * @param item item的所在section的position
-         * @return 是否允许取消选中
+         * @param itemIndex item的所在section和所在section的position
+         * @return 返回itemIndex表示反选此项，返回其他SectionItemIndex表示反选其他项，返回null表示不反选此项
          */
-        boolean shouldDeselectItem(SectionAdapter adapter, int section, int item, int willSelectSection, int willSelectItem, boolean fromUser);
+        SectionItemIndex willDeselectItem(SectionAdapter adapter, SectionItemIndex itemIndex, boolean fromUser);
 
         /**
          * item已被取消选中
          * @param adapter adapter
-         * @param section item的所在section
-         * @param item item的所在section的position
+         * @param itemIndex item的所在section和所在section的position
          */
-        void onItemDeselected(SectionAdapter adapter, int section, int item, boolean fromUser);
+        void onItemDeselected(SectionAdapter adapter, SectionItemIndex itemIndex, boolean fromUser);
 
         class SimpleSectionSelectionDelegate implements SectionSelectionDelegate {
             @Override
-            public boolean shouldSelectItem(SectionAdapter adapter, int section, int item, boolean fromUser) {
-                return false;
+            public SectionItemIndex willSelectItem(SectionAdapter adapter, SectionItemIndex itemIndex, boolean fromUser) {
+                return itemIndex;
             }
 
             @Override
-            public void onItemSelected(SectionAdapter adapter, int section, int item, boolean fromUser) {
+            public void onItemSelected(SectionAdapter adapter, SectionItemIndex itemIndex, boolean fromUser) {
 
             }
 
             @Override
-            public boolean shouldDeselectItem(SectionAdapter adapter, int section, int item, int willSelectSection, int willSelectItem, boolean fromUser) {
-                return true;
+            public void onSelectedItemClick(SectionAdapter adapter, SectionItemIndex itemIndex) {
+
             }
 
             @Override
-            public void onItemDeselected(SectionAdapter adapter, int section, int item, boolean fromUser) {
+            public SectionItemIndex willDeselectItem(SectionAdapter adapter, SectionItemIndex itemIndex, boolean fromUser) {
+                return itemIndex;
+            }
+
+            @Override
+            public void onItemDeselected(SectionAdapter adapter, SectionItemIndex itemIndex, boolean fromUser) {
 
             }
         }
@@ -269,34 +277,35 @@ public class SectionAdapter extends SelectionAdapter {
         if (this.interceptSelectionDelegate == null) {
             this.interceptSelectionDelegate = new SelectionDelegate.SimpleOnItemSelectedListener() {
                 @Override
-                public boolean shouldSelectItem(SelectionAdapter adapter, int position, boolean fromUser) {
+                public int willSelectItem(SelectionAdapter adapter, int position, boolean fromUser) {
                     SectionItemIndex sectionItemIndex = getSectionItemIndex(position);
-                    if (sectionItemIndex.item == SectionItemIndex.NoIndex) {
-                        return false;
-                    }
-                    return getSectionSelectionDelegate().shouldSelectItem(self, sectionItemIndex.section, sectionItemIndex.item, fromUser);
+                    SectionItemIndex willSelectItemIndex = getSectionSelectionDelegate().willSelectItem((SectionAdapter) adapter, sectionItemIndex, fromUser);
+                    return internalFindPosition(willSelectItemIndex);
                 }
 
                 @Override
                 public void onItemSelected(SelectionAdapter adapter, int position, boolean fromUser) {
                     SectionItemIndex sectionItemIndex = getSectionItemIndex(position);
-                    getSectionSelectionDelegate().onItemSelected(self, sectionItemIndex.section, sectionItemIndex.item, fromUser);
+                    getSectionSelectionDelegate().onItemSelected((SectionAdapter) adapter, sectionItemIndex, fromUser);
                 }
 
                 @Override
-                public boolean shouldDeselectItem(SelectionAdapter adapter, int position, int willSelectPosition, boolean fromUser) {
+                public void onSelectedItemClick(SelectionAdapter adapter, int position) {
                     SectionItemIndex sectionItemIndex = getSectionItemIndex(position);
-                    if (sectionItemIndex.item == SectionItemIndex.NoIndex) {
-                        return true;
-                    }
-                    SectionItemIndex willSelectSectionItemIndex = getSectionItemIndex(position);
-                    return getSectionSelectionDelegate().shouldDeselectItem(self, sectionItemIndex.section, sectionItemIndex.item, willSelectSectionItemIndex.section, willSelectSectionItemIndex.item, fromUser);
+                    getSectionSelectionDelegate().onSelectedItemClick((SectionAdapter) adapter, sectionItemIndex);
+                }
+
+                @Override
+                public int willDeselectItem(SelectionAdapter adapter, int position, boolean fromUser) {
+                    SectionItemIndex sectionItemIndex = getSectionItemIndex(position);
+                    SectionItemIndex willDeselectItemIndex = getSectionSelectionDelegate().willDeselectItem((SectionAdapter) adapter, sectionItemIndex, fromUser);
+                    return internalFindPosition(willDeselectItemIndex);
                 }
 
                 @Override
                 public void onItemDeselected(SelectionAdapter adapter, int position, boolean fromUser) {
                     SectionItemIndex sectionItemIndex = getSectionItemIndex(position);
-                    getSectionSelectionDelegate().onItemDeselected(self, sectionItemIndex.section, sectionItemIndex.item, fromUser);
+                    getSectionSelectionDelegate().onItemDeselected((SectionAdapter) adapter, sectionItemIndex, fromUser);
                 }
             };
         }
@@ -306,23 +315,23 @@ public class SectionAdapter extends SelectionAdapter {
     /* Delegates */
 
     /* Private Methods */
-    protected int internalFindSectionItemPosition(int section, int item) {
+    protected int internalFindPosition(SectionItemIndex itemIndex) {
         int position = 0;
-        for (int i = 0; i < section; i++) {
-            position += getSectionItemCount(section) + 1;
+        for (int i = 0; i < itemIndex.section; i++) {
+            position += getSectionItemCount(itemIndex.section) + 1;
         }
 
-        return position + item + 1;
+        return position + itemIndex.item + 1;
     }
 
-    protected boolean internalSelectSectionItem(int section, int item, boolean fromUser) {
-        return internalSelectItem(internalFindSectionItemPosition(section, item), fromUser);
+    protected boolean internalSelectSectionItem(SectionItemIndex itemIndex, boolean fromUser) {
+        return internalSelectItem(internalFindPosition(itemIndex), fromUser);
     }
 
     protected boolean internalSelectSection(int section, boolean fromUser) {
         if (getSelectionMode() == SelectionMode.Multiple) {
             boolean result = true;
-            int fromPosition = internalFindSectionItemPosition(section, 0);
+            int fromPosition = internalFindPosition(new SectionItemIndex(section, SectionItemIndex.NoIndex));
             for (int position = fromPosition; position < fromPosition + getSectionItemCount(section); position++) {
                 result = result && internalSelectItem(position, fromUser);
             }
@@ -331,8 +340,8 @@ public class SectionAdapter extends SelectionAdapter {
         return false;
     }
 
-    protected boolean internalDeselectSectionItem(int section, int item, boolean fromUser) {
-        return internalDeselectItem(internalFindSectionItemPosition(section, item), fromUser);
+    protected boolean internalDeselectSectionItem(SectionItemIndex itemIndex, boolean fromUser) {
+        return internalDeselectItem(internalFindPosition(itemIndex), fromUser);
     }
 
     protected boolean internalDeselectSection(int section, boolean fromUser) {
@@ -341,7 +350,7 @@ public class SectionAdapter extends SelectionAdapter {
         }
         else {
             boolean result = true;
-            int fromPosition = internalFindSectionItemPosition(section, 0);
+            int fromPosition = internalFindPosition(new SectionItemIndex(section, SectionItemIndex.NoIndex));
             for (int position = fromPosition; position < fromPosition + getSectionItemCount(section); position++) {
                 result = result && internalDeselectItem(position, fromUser);
             }
@@ -355,6 +364,14 @@ public class SectionAdapter extends SelectionAdapter {
         public static final int NoIndex = -1;
         public int section = NoIndex;
         public int item = NoIndex;
+
+        public SectionItemIndex() {
+            this(NoIndex, NoIndex);
+        }
+        public SectionItemIndex(int section, int item) {
+            this.section = section;
+            this.item = item;
+        }
     }
 
 }

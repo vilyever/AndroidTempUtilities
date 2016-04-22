@@ -163,11 +163,6 @@ public abstract class RadioController extends ViewController {
             this.itemAdapter.setSelectionMode(SelectionAdapter.SelectionMode.Single);
             this.itemAdapter.setSelectionDelegate(new SelectionAdapter.SelectionDelegate.SimpleOnItemSelectedListener() {
                 @Override
-                public boolean shouldSelectItem(SelectionAdapter adapter, int position, boolean fromUser) {
-                    return true;
-                }
-
-                @Override
                 public void onItemSelected(SelectionAdapter adapter, int position, boolean fromUser) {
                     self.onItemSelected(position);
                 }

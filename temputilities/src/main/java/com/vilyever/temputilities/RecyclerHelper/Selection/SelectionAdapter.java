@@ -94,13 +94,13 @@ public class SelectionAdapter extends RecyclerViewAdapter implements SelectionVi
     }
     public interface SelectionDelegate {
         /**
-         * 是否允许item被选中
+         * 将要选中item
          * 注意：此时item已被点击
          * @param adapter adapter
          * @param position item的position
-         * @return 是否允许选中
+         * @return 返回position表示选中此项，返回其他position表示选中其他项，返回{@link RecyclerView#NO_POSITION}表示不选中此项
          */
-        boolean shouldSelectItem(SelectionAdapter adapter, int position, boolean fromUser);
+        int willSelectItem(SelectionAdapter adapter, int position, boolean fromUser);
 
         /**
          * item已被选中
@@ -110,13 +110,20 @@ public class SelectionAdapter extends RecyclerViewAdapter implements SelectionVi
         void onItemSelected(SelectionAdapter adapter, int position, boolean fromUser);
 
         /**
-         * 是否允许item被取消选中
+         * 已被选中的item被点击
+         * @param adapter adapter
+         * @param position item的position
+         */
+        void onSelectedItemClick(SelectionAdapter adapter, int position);
+
+        /**
+         * 将要反选item
          * 注意：此时已选中的item已被点击
          * @param adapter adapter
          * @param position item的position
-         * @return 是否允许取消选中
+         * @return 返回position表示反选此项，返回其他position表示反选其他项，返回{@link RecyclerView#NO_POSITION}表示不反选此项
          */
-        boolean shouldDeselectItem(SelectionAdapter adapter, int position, int willSelectPosition, boolean fromUser);
+        int willDeselectItem(SelectionAdapter adapter, int position, boolean fromUser);
 
         /**
          * item已被取消选中
@@ -127,21 +134,23 @@ public class SelectionAdapter extends RecyclerViewAdapter implements SelectionVi
 
         class SimpleOnItemSelectedListener implements SelectionDelegate {
             @Override
-            public boolean shouldSelectItem(SelectionAdapter adapter, int position, boolean fromUser) {
-                return adapter.getSelectionMode() != SelectionMode.None;
-            }
-
-            @Override
-            public boolean shouldDeselectItem(SelectionAdapter adapter, int position, int willSelectPosition, boolean fromUser) {
-                if (adapter.getSelectionMode() == SelectionMode.Single) {
-                    return willSelectPosition != RecyclerView.NO_POSITION;
-                }
-                return adapter.getSelectionMode() == SelectionMode.Multiple;
+            public int willSelectItem(SelectionAdapter adapter, int position, boolean fromUser) {
+                return position;
             }
 
             @Override
             public void onItemSelected(SelectionAdapter adapter, int position, boolean fromUser) {
 
+            }
+
+            @Override
+            public void onSelectedItemClick(SelectionAdapter adapter, int position) {
+
+            }
+
+            @Override
+            public int willDeselectItem(SelectionAdapter adapter, int position, boolean fromUser) {
+                return position;
             }
 
             @Override
@@ -254,22 +263,29 @@ public class SelectionAdapter extends RecyclerViewAdapter implements SelectionVi
                 return false;
             case Single:
                 int preSingleSelectedPosition = getSingleSelectedPosition();
-                int willSelectPosition = (position == preSingleSelectedPosition) ? RecyclerView.NO_POSITION : position;
+
+                if (position == preSingleSelectedPosition) {
+                    getSelectionDelegate().onSelectedItemClick(this, position);
+                    return true;
+                }
+
                 if (internalValidatePosition(preSingleSelectedPosition)
-                        && !internalDeselectItem(preSingleSelectedPosition, willSelectPosition, fromUser)) {
+                        && !internalDeselectItem(preSingleSelectedPosition, fromUser)) {
                     break;
                 }
             case Multiple:
                 if (getItemSelectionStateArray().get(position)) {
                     return true;
                 }
-                if (getSelectionDelegate().shouldSelectItem(this, position, fromUser)) {
-                    getItemSelectionStateArray().put(position, true);
 
-//                    notifyItemChanged(position);
-                    internalReloadItemSelectionState(position);
+                int willSelectPosition = getSelectionDelegate().willSelectItem(this, position, fromUser);
+                if (internalValidatePosition(willSelectPosition)) {
+                    getItemSelectionStateArray().put(willSelectPosition, true);
 
-                    getSelectionDelegate().onItemSelected(this, position, fromUser);
+//                    notifyItemChanged(willSelectPosition);
+                    internalReloadItemSelectionState(willSelectPosition);
+
+                    getSelectionDelegate().onItemSelected(this, willSelectPosition, fromUser);
                 }
         }
 
@@ -313,31 +329,28 @@ public class SelectionAdapter extends RecyclerViewAdapter implements SelectionVi
         return false;
     }
 
-
-    protected boolean internalDeselectItem(int position, boolean fromUser) {
-        return internalDeselectItem(position, RecyclerView.NO_POSITION, fromUser);
-    }
-
     /**
      * 反选指定item
      * @param position
-     * @param willSelectPosition 欲选中的item的position
      * @param fromUser 是否由user触屏操作引起
      * @return 指定item的状态是否为未选中，如果该item在调用此方法前的状态为未选中，此时仍然返回true
      */
-    protected boolean internalDeselectItem(int position, int willSelectPosition, boolean fromUser) {
+    protected boolean internalDeselectItem(int position, boolean fromUser) {
         if (!internalValidatePosition(position)) {
             return false;
         }
 
-        if (getItemSelectionStateArray().get(position)
-                && getSelectionDelegate().shouldDeselectItem(this, position, willSelectPosition, fromUser)) {
-            getItemSelectionStateArray().put(position, false);
+        if (getItemSelectionStateArray().get(position)) {
+            int willDeselectPosition = getSelectionDelegate().willDeselectItem(this, position, fromUser);
 
-//            notifyItemChanged(position);
-            internalReloadItemSelectionState(position);
+            if (internalValidatePosition(willDeselectPosition)) {
+                getItemSelectionStateArray().put(willDeselectPosition, false);
 
-            getSelectionDelegate().onItemDeselected(this, position, fromUser);
+//            notifyItemChanged(willDeselectPosition);
+                internalReloadItemSelectionState(willDeselectPosition);
+
+                getSelectionDelegate().onItemDeselected(this, willDeselectPosition, fromUser);
+            }
         }
 
         return !getItemSelectionStateArray().get(position);

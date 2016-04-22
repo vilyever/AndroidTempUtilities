@@ -81,11 +81,6 @@ public class CenterItemDecoration extends DividerItemDecoration {
             return;
         }
 
-        if (parent.computeHorizontalScrollRange() > parent.getWidth()
-                || parent.computeVerticalScrollRange() > parent.getHeight()) {
-            return;
-        }
-
         int position = parent.getChildAdapterPosition(view);
         int itemCount = parent.getAdapter().getItemCount();
         int parentHorizontalSpace = parent.getWidth() - parent.getPaddingLeft() - parent.getPaddingRight();
@@ -97,13 +92,24 @@ public class CenterItemDecoration extends DividerItemDecoration {
         if (isVertical) {
             view.measure(View.MeasureSpec.UNSPECIFIED, View.MeasureSpec.UNSPECIFIED);
             itemLength = view.getMeasuredHeight() + layoutManager.getTopDecorationHeight(view) + layoutManager.getBottomDecorationHeight(view);
+            if (itemLength * itemCount > parentVerticalSpace) {
+                return;
+            }
         }
         else {
             view.measure(View.MeasureSpec.UNSPECIFIED, View.MeasureSpec.UNSPECIFIED);
             itemLength = view.getMeasuredWidth() + layoutManager.getLeftDecorationWidth(view) + layoutManager.getRightDecorationWidth(view);
+            if (itemLength * itemCount > parentHorizontalSpace) {
+                return;
+            }
         }
 
-        if (!isSeparate()) {
+        boolean isSeparate = isSeparate();
+        if (itemCount == 1) {
+            isSeparate = false;
+        }
+
+        if (!isSeparate) {
             if (isVertical) {
                 setVerticalSpace(getInnerSpace());
 

@@ -115,20 +115,13 @@ public class BaseRecyclerViewController extends ViewController {
         });
         adapter.setSelectionDelegate(new SelectionAdapter.SelectionDelegate.SimpleOnItemSelectedListener() {
             @Override
-            public boolean shouldSelectItem(SelectionAdapter adapter, int position, boolean fromUser) {
-                Log.d("tttest", "shouldSelectItem " + position + "    , fromUser " + fromUser);
-                return true;
-            }
-
-            @Override
             public void onItemSelected(SelectionAdapter adapter, int position, boolean fromUser) {
-
+                Log.d("tttest", "onItemSelected " + position);
             }
 
             @Override
-            public boolean shouldDeselectItem(SelectionAdapter adapter, int position, int willSelectPosition, boolean fromUser) {
-                Log.d("tttest", "shouldDeselectItem " + position + "    , willSelectPosition " + willSelectPosition);
-                return super.shouldDeselectItem(adapter, position, willSelectPosition, fromUser);
+            public void onSelectedItemClick(SelectionAdapter adapter, int position) {
+                Log.d("tttest", "onSelectedItemClick " + position);
             }
         });
         return adapter;
