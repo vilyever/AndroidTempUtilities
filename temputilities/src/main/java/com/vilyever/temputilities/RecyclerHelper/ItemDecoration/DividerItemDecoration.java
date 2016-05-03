@@ -82,7 +82,7 @@ public class DividerItemDecoration extends RecyclerView.ItemDecoration {
         return this;
     }
 
-    private Rect edgeSpace;
+    private Rect edgeSpace = new Rect();
     public DividerItemDecoration setEdgeSpace(Rect edgeSpace) {
         this.edgeSpace = edgeSpace;
         return this;

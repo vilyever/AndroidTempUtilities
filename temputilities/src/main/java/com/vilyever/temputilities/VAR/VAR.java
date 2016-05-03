@@ -32,8 +32,10 @@ public class VAR<T> {
     }
 
     public VAR set(T value) {
-        this.value = value;
-        internalNotifyValueChanged();
+        if (this.value != value) {
+            this.value = value;
+            internalNotifyValueChanged();
+        }
         return this;
     }
 

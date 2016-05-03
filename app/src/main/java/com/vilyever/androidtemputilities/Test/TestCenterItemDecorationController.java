@@ -3,6 +3,7 @@ package com.vilyever.androidtemputilities.Test;
 import android.content.Context;
 import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
+import android.view.ViewGroup;
 
 import com.vilyever.temputilities.RecyclerHelper.ItemDecoration.CenterItemDecoration;
 import com.vilyever.unitconversion.DimenConverter;
@@ -21,7 +22,7 @@ public class TestCenterItemDecorationController extends BaseRecyclerViewControll
     public TestCenterItemDecorationController(Context context) {
         super(context);
 
-        setItemCount(1);
+        setItemCount(5);
     }
     
     
@@ -50,7 +51,12 @@ public class TestCenterItemDecorationController extends BaseRecyclerViewControll
         return new LinearLayoutManager(getContext(), LinearLayoutManager.HORIZONTAL, false);
     }
 
+    @Override
+    protected void onViewWillAttachToParent(ViewGroup parent) {
+        super.onViewWillAttachToParent(parent);
 
+        getAdapter().selectItem(0);
+    }
 
     /* Delegates */
     

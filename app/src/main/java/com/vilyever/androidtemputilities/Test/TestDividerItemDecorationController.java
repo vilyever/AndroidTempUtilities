@@ -21,7 +21,6 @@ public class TestDividerItemDecorationController extends BaseRecyclerViewControl
     /* Constructors */
     public TestDividerItemDecorationController(Context context) {
         super(context);
-        
     }
     
     
