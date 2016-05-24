@@ -32,7 +32,15 @@ public class LoadingView extends View {
     }
     
     /* Public Methods */
+    public LoadingView startAnimation() {
+        getLoadingDrawable().start();
+        return this;
+    }
 
+    public LoadingView stopAnimation() {
+        getLoadingDrawable().stop();
+        return this;
+    }
 
     /* Properties */
     private LoadingDrawable loadingDrawable;
@@ -105,7 +113,19 @@ public class LoadingView extends View {
 
         setMeasuredDimension(width, height);
     }
-    
+
+    @Override
+    public void setVisibility(int visibility) {
+        super.setVisibility(visibility);
+
+        if (visibility == VISIBLE) {
+            startAnimation();
+        }
+        else {
+            stopAnimation();
+        }
+    }
+
     /* Delegates */
     
     
