@@ -4,6 +4,8 @@ import android.content.Context;
 import android.view.View;
 import android.view.inputmethod.InputMethodManager;
 
+import com.vilyever.activityhelper.ActivityHelper;
+
 /**
  * KeyboardManager
  * ESB <com.vilyever.base>
@@ -22,17 +24,12 @@ public class KeyboardManager {
 
     /**
      * 弹出键盘
-     * @param inputView 获取焦点的视图
+     * @param focusedView 获取焦点的视图
      */
-    public static void showKeyboard(View inputView) {
-//        inputView.requestFocus();
-//        InputMethodManager imm = (InputMethodManager) inputView.getContext().getSystemService(Context.INPUT_METHOD_SERVICE);
-//        imm.showSoftInput(inputView, InputMethodManager.SHOW_FORCED);
-
-        if (inputView.requestFocus()) {
-            InputMethodManager imm = (InputMethodManager)
-                    inputView.getContext().getSystemService(Context.INPUT_METHOD_SERVICE);
-            imm.showSoftInput(inputView, InputMethodManager.SHOW_IMPLICIT);
+    public static void showKeyboard(View focusedView) {
+        if (focusedView.requestFocus()) {
+            InputMethodManager imm = (InputMethodManager) focusedView.getContext().getSystemService(Context.INPUT_METHOD_SERVICE);
+            imm.showSoftInput(focusedView, InputMethodManager.SHOW_IMPLICIT);
         }
     }
 
@@ -40,23 +37,30 @@ public class KeyboardManager {
      * 隐藏键盘
      */
     public static void hideKeyboard() {
-//        if (ActivityHelper.findCurrentActivity() == null) {
-//            return;
-//        }
-//        View inputView = ActivityHelper.findCurrentActivity().getCurrentFocus();
-//        if (inputView == null) {
-//            return;
-//        }
-//        inputView.clearFocus();
-//        InputMethodManager imm = (InputMethodManager) inputView.getContext().getSystemService(Context.INPUT_METHOD_SERVICE);
-//        imm.hideSoftInputFromWindow(inputView.getWindowToken(), 0);
+        if (ActivityHelper.findTopActivity() == null) {
+            return;
+        }
+        View focusedView = ActivityHelper.findTopActivity().getCurrentFocus();
+        hideKeyboard(focusedView);
+    }
+
+    /**
+     * 隐藏键盘
+     */
+    public static void hideKeyboard(View focusedView) {
+        if (focusedView == null) {
+            return;
+        }
+        focusedView.clearFocus();
+        InputMethodManager imm = (InputMethodManager) focusedView.getContext().getSystemService(Context.INPUT_METHOD_SERVICE);
+        imm.hideSoftInputFromWindow(focusedView.getWindowToken(), 0);
     }
 
     public static boolean isInputMethodTarget(View inputView) {
         InputMethodManager imm = (InputMethodManager) inputView.getContext().getSystemService(Context.INPUT_METHOD_SERVICE);
         return imm != null && imm.isActive(inputView);
     }
-    
+
     
     /* Properties */
     

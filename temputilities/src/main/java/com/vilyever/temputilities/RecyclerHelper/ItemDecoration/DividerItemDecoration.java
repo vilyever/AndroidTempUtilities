@@ -104,7 +104,7 @@ public class DividerItemDecoration extends RecyclerView.ItemDecoration {
         int parentVerticalSpace = parent.getHeight() - parent.getPaddingTop() - parent.getPaddingBottom();
 
         Rect rect = new Rect(0, 0, 0, 0);
-
+        
         Rect edgeSpace = new Rect(getEdgeSpace());
         if (isEdgeSpaceEqualInnerSpace()) {
             edgeSpace.set(getHorizontalSpace(), getVerticalSpace(), getHorizontalSpace(), getVerticalSpace());

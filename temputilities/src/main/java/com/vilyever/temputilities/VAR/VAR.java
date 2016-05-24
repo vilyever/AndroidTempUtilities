@@ -31,48 +31,62 @@ public class VAR<T> {
         return this.value;
     }
 
-    public VAR set(T value) {
-        if (this.value != value) {
-            this.value = value;
-            internalNotifyValueChanged();
-        }
+    public synchronized VAR set(T value) {
+        T oldValue = this.value;
+        this.value = value;
+        internalNotifyValueChanged(value, oldValue);
         return this;
     }
 
-    public void registerObserver(Observer observer) {
-        getObserverMap().put(observer, X);
+    public synchronized VAR onChange(Monitor<T> monitor) {
+        getMonitorMap().put(monitor, X);
+        return this;
     }
 
-    public void removeObserver(Observer observer) {
-        getObserverMap().remove(observer);
+    public synchronized VAR onChangeWithInitial(Monitor<T> monitor) {
+        forceNotify(monitor);
+        getMonitorMap().put(monitor, X);
+        return this;
     }
-    
+
+    public synchronized VAR discard(Monitor<T> monitor) {
+        getMonitorMap().remove(monitor);
+        return this;
+    }
+
+    public synchronized VAR forceNotify(Monitor<T> monitor) {
+        monitor.onValueChange(this, value(), value());
+        return this;
+    }
+
     /* Properties */
-    private Map<Observer, Object> observerMap;
-    protected Map<Observer, Object> getObserverMap() {
-        if (this.observerMap == null) {
-            this.observerMap = Collections.synchronizedMap(new WeakHashMap<Observer, Object>());
+    private Map<Monitor<T>, Object> monitorMap;
+    protected Map<Monitor<T>, Object> getMonitorMap() {
+        if (this.monitorMap == null) {
+            this.monitorMap = Collections.synchronizedMap(new WeakHashMap<Monitor<T>, Object>());
         }
-        return this.observerMap;
+        return this.monitorMap;
     }
-    public interface Observer {
-        void onValueChange(VAR var, Object value);
+    public interface Monitor<T> {
+        void onValueChange(VAR var, T value, T oldValue);
     }
 
     /* Overrides */
-    
-    
-    /* Delegates */
-    
-    
-    /* Private Methods */
-    private void internalNotifyValueChanged() {
-        Set<Observer> set = new HashSet<Observer>(getObserverMap().keySet());
-        Iterator<Observer> iterator = set.iterator();
 
-        while (iterator.hasNext()) {
-            Observer observer = iterator.next();
-            observer.onValueChange(this, value);
+
+    /* Delegates */
+
+
+    /* Private Methods */
+    private void internalNotifyValueChanged(T value, T oldValue) {
+        if (getMonitorMap().size() > 0) {
+            Set<Monitor<T>> set = new HashSet<Monitor<T>>(getMonitorMap().keySet());
+            Iterator<Monitor<T>> iterator = set.iterator();
+
+            while (iterator.hasNext()) {
+                Monitor<T> monitor = iterator.next();
+                monitor.onValueChange(this, value, oldValue);
+            }
         }
     }
 }
