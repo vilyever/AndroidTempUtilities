@@ -5,29 +5,37 @@
     android:layout_height="match_parent"
     >
 
-    <com.vilyever.temputilities.UI.AspectRatioFrameLayout.AspectRatioFrameLayout
-        android:layout_width="match_parent"
-        android:layout_height="100dp"
+    <RelativeLayout
+        android:layout_width="500dp"
+        android:layout_height="200dp"
         android:layout_centerInParent="true"
-        app:aspectRatio="2"
-        app:keepAspectDimension="height"
-        android:background="@color/Red"
+        android:background="@color/Black"
         android:padding="8dp"
         >
 
-        <ImageView
-            android:id="@+id/imageView"
-            android:layout_width="wrap_content"
-            android:layout_height="50dp"
-            android:padding="@dimen/presetDoublePadding"
-            android:scaleType="center"
-            android:src="@drawable/logger_floating_icon"
-            android:background="@color/Green"
-            />
+        <com.vilyever.temputilities.UI.AspectRatioFrameLayout.AspectRatioFrameLayout
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"
+            android:layout_centerInParent="true"
+            app:aspectRatio="1"
+            app:keepAspectDimension="height"
+            android:background="@color/Red"
+            android:padding="8dp"
+            >
 
-    </com.vilyever.temputilities.UI.AspectRatioFrameLayout.AspectRatioFrameLayout>
+            <ImageView
+                android:id="@+id/imageView"
+                android:layout_width="wrap_content"
+                android:layout_height="50dp"
+                android:padding="@dimen/presetDoublePadding"
+                android:scaleType="center"
+                android:src="@drawable/logger_floating_icon"
+                android:background="@color/Green"
+                />
 
+        </com.vilyever.temputilities.UI.AspectRatioFrameLayout.AspectRatioFrameLayout>
 
+    </RelativeLayout>
 
     <com.vilyever.androidtemputilities.Test.aspectratioframelayout.TestTextView
         android:layout_width="wrap_content"

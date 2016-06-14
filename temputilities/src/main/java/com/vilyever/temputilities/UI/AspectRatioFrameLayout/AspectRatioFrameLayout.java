@@ -4,6 +4,7 @@ import android.content.Context;
 import android.content.res.TypedArray;
 import android.support.annotation.IntDef;
 import android.util.AttributeSet;
+import android.util.Log;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.FrameLayout;
@@ -272,8 +273,8 @@ public class AspectRatioFrameLayout extends FrameLayout {
             int widthPadding = getPaddingLeft() + getPaddingRight();
             int heightPadding = getPaddingTop() + getPaddingBottom();
 
-            int desireWidth = 0;
-            int desireHeight = 0;
+            int desireWidth = widthSpecSize;
+            int desireHeight = heightSpecSize;
 
             if (getKeepAspectDimension() == KeepWidth) {
                 if (widthSpecMode == MeasureSpec.EXACTLY) {
@@ -330,6 +331,7 @@ public class AspectRatioFrameLayout extends FrameLayout {
                 }
             }
 
+            Log.d("logger", "desireWidth " + desireWidth + "  , desireHeight " + desireHeight);
             setMeasuredDimension(desireWidth, desireHeight);
 
             widthMeasureSpec = MeasureSpec.makeMeasureSpec(desireWidth, widthSpecMode);

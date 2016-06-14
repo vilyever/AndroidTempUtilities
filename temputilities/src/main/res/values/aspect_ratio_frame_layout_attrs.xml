@@ -15,7 +15,7 @@
             <flag name="none" value="0" />
         </attr>
         <attr name="keepAspectDimension" format="enum" > <!-- 保持宽高的某一边不变 -->
-            <enum name="no_wrap_content" value="0" />
+            <enum name="none" value="0" />
             <enum name="width" value="1" />
             <enum name="height" value="2" />
         </attr>
