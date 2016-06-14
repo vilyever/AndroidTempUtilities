@@ -266,8 +266,8 @@ public class AspectRatioFrameLayout extends FrameLayout {
 
             setMeasuredDimension(desireWidth, desireHeight);
 
-//            widthMeasureSpec = MeasureSpec.makeMeasureSpec(desireWidth, widthSpecMode);
-//            heightMeasureSpec = MeasureSpec.makeMeasureSpec(desireHeight, heightSpecMode);
+            widthMeasureSpec = MeasureSpec.makeMeasureSpec(desireWidth, widthSpecMode);
+            heightMeasureSpec = MeasureSpec.makeMeasureSpec(desireHeight, heightSpecMode);
             int childCount = getChildCount();
             for (int i = 0; i < childCount; i++) {
                 final View child = getChildAt(i);
