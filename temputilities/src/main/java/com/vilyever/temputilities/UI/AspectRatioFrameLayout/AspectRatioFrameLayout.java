@@ -200,8 +200,8 @@ public class AspectRatioFrameLayout extends FrameLayout {
             final int widthSpecSize = MeasureSpec.getSize(widthMeasureSpec);
             final int heightSpecSize = MeasureSpec.getSize(heightMeasureSpec);
 
-//            int widthPadding = getPaddingLeft() + getPaddingRight();
-//            int heightPadding = getPaddingTop() + getPaddingBottom();
+            int widthPadding = getPaddingLeft() + getPaddingRight();
+            int heightPadding = getPaddingTop() + getPaddingBottom();
 
             int desireWidth = widthSpecSize;
             int desireHeight = heightSpecSize;
@@ -266,13 +266,40 @@ public class AspectRatioFrameLayout extends FrameLayout {
 
             setMeasuredDimension(desireWidth, desireHeight);
 
-            widthMeasureSpec = MeasureSpec.makeMeasureSpec(desireWidth, widthSpecMode);
-            heightMeasureSpec = MeasureSpec.makeMeasureSpec(desireHeight, heightSpecMode);
             int childCount = getChildCount();
             for (int i = 0; i < childCount; i++) {
                 final View child = getChildAt(i);
                 if (child.getVisibility() != GONE) {
-                    measureChildWithMargins(child, widthMeasureSpec, 0, heightMeasureSpec, 0);
+                    final LayoutParams childLayoutParams = (LayoutParams) child.getLayoutParams();
+                    final int childWidthMeasureSpec;
+                    if (childLayoutParams.width == LayoutParams.MATCH_PARENT) {
+                        final int width = Math.max(0, getMeasuredWidth()
+                                                      - widthPadding
+                                                      - childLayoutParams.leftMargin - childLayoutParams.rightMargin);
+                        childWidthMeasureSpec = MeasureSpec.makeMeasureSpec(
+                                width, MeasureSpec.EXACTLY);
+                    } else {
+                        childWidthMeasureSpec = getChildMeasureSpec(widthMeasureSpec,
+                                                                    widthPadding +
+                                                                    childLayoutParams.leftMargin + childLayoutParams.rightMargin,
+                                                                    childLayoutParams.width);
+                    }
+
+                    final int childHeightMeasureSpec;
+                    if (childLayoutParams.height == LayoutParams.MATCH_PARENT) {
+                        final int height = Math.max(0, getMeasuredHeight()
+                                                       - heightPadding
+                                                       - childLayoutParams.topMargin - childLayoutParams.bottomMargin);
+                        childHeightMeasureSpec = MeasureSpec.makeMeasureSpec(
+                                height, MeasureSpec.EXACTLY);
+                    } else {
+                        childHeightMeasureSpec = getChildMeasureSpec(heightMeasureSpec,
+                                                                     heightPadding +
+                                                                     childLayoutParams.topMargin + childLayoutParams.bottomMargin,
+                                                                     childLayoutParams.height);
+                    }
+
+                    child.measure(childWidthMeasureSpec, childHeightMeasureSpec);
                 }
             }
         }
