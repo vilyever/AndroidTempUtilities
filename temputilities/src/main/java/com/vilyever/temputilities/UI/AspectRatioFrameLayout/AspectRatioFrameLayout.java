@@ -4,7 +4,6 @@ import android.content.Context;
 import android.content.res.TypedArray;
 import android.support.annotation.IntDef;
 import android.util.AttributeSet;
-import android.util.Log;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.FrameLayout;
@@ -270,8 +269,8 @@ public class AspectRatioFrameLayout extends FrameLayout {
             final int widthSpecSize = MeasureSpec.getSize(widthMeasureSpec);
             final int heightSpecSize = MeasureSpec.getSize(heightMeasureSpec);
 
-            int widthPadding = getPaddingLeft() + getPaddingRight();
-            int heightPadding = getPaddingTop() + getPaddingBottom();
+//            int widthPadding = getPaddingLeft() + getPaddingRight();
+//            int heightPadding = getPaddingTop() + getPaddingBottom();
 
             int desireWidth = widthSpecSize;
             int desireHeight = heightSpecSize;
@@ -290,17 +289,23 @@ public class AspectRatioFrameLayout extends FrameLayout {
                     }
                 }
 
-                if (heightSpecMode != MeasureSpec.EXACTLY) {
-                    desireHeight = (int) ((desireWidth - widthPadding) / getAspectRatio() + heightPadding);
-                    if (getAspectRatioMinHeight() != MinHeightNone) {
-                        desireHeight = Math.max(desireHeight, getAspectRatioMinHeight());
-                    }
-                    if (getAspectRatioMaxHeight() != MaxHeightNone && getAspectRatioMaxHeight() > 0) {
-                        desireHeight = Math.min(desireHeight, getAspectRatioMaxHeight());
-                    }
+                if (heightSpecMode == MeasureSpec.EXACTLY) {
+                    desireHeight = heightSpecSize;
                 }
                 else {
-                    desireHeight = heightSpecSize;
+//                    desireHeight = (int) ((desireWidth - widthPadding) / getAspectRatio() + heightPadding);
+                    desireHeight = (int) (desireWidth / getAspectRatio());
+                }
+
+                if (getAspectRatioMinHeight() != MinHeightNone) {
+                    desireHeight = Math.max(desireHeight, getAspectRatioMinHeight());
+                }
+                if (getAspectRatioMaxHeight() != MaxHeightNone && getAspectRatioMaxHeight() > 0) {
+                    desireHeight = Math.min(desireHeight, getAspectRatioMaxHeight());
+                }
+
+                if (heightSpecMode == MeasureSpec.AT_MOST) {
+                    desireHeight = Math.min(desireHeight, heightSpecSize);
                 }
             }
             else {
@@ -317,25 +322,30 @@ public class AspectRatioFrameLayout extends FrameLayout {
                     }
                 }
 
-                if (widthSpecMode != MeasureSpec.EXACTLY) {
-                    desireWidth = (int) ((desireHeight - heightPadding) * getAspectRatio() + widthPadding);
-                    if (getAspectRatioMinWidth() != MinWidthNone) {
-                        desireWidth = Math.max(desireWidth, getAspectRatioMinWidth());
-                    }
-                    if (getAspectRatioMaxWidth() != MaxWidthNone && getAspectRatioMaxWidth() > 0) {
-                        desireWidth = Math.min(desireWidth, getAspectRatioMaxWidth());
-                    }
+                if (widthSpecMode == MeasureSpec.EXACTLY) {
+                    desireWidth = widthSpecSize;
                 }
                 else {
-                    desireWidth = widthSpecSize;
+//                    desireWidth = (int) ((desireHeight - heightPadding) * getAspectRatio() + widthPadding);
+                    desireWidth = (int) (desireHeight * getAspectRatio());
+                }
+
+                if (getAspectRatioMinWidth() != MinWidthNone) {
+                    desireWidth = Math.max(desireWidth, getAspectRatioMinWidth());
+                }
+                if (getAspectRatioMaxWidth() != MaxWidthNone && getAspectRatioMaxWidth() > 0) {
+                    desireWidth = Math.min(desireWidth, getAspectRatioMaxWidth());
+                }
+
+                if (widthSpecMode == MeasureSpec.AT_MOST) {
+                    desireWidth = Math.min(desireWidth, widthSpecSize);
                 }
             }
 
-            Log.d("logger", "desireWidth " + desireWidth + "  , desireHeight " + desireHeight);
             setMeasuredDimension(desireWidth, desireHeight);
 
-            widthMeasureSpec = MeasureSpec.makeMeasureSpec(desireWidth, widthSpecMode);
-            heightMeasureSpec = MeasureSpec.makeMeasureSpec(desireHeight, heightSpecMode);
+//            widthMeasureSpec = MeasureSpec.makeMeasureSpec(desireWidth, widthSpecMode);
+//            heightMeasureSpec = MeasureSpec.makeMeasureSpec(desireHeight, heightSpecMode);
             int childCount = getChildCount();
             for (int i = 0; i < childCount; i++) {
                 final View child = getChildAt(i);
