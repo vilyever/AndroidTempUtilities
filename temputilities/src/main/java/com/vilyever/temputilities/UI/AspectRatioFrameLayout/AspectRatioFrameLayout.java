@@ -113,11 +113,6 @@ public class AspectRatioFrameLayout extends FrameLayout {
 
         this.keepAspectDimension = a.getInt(R.styleable.AspectRatioFrameLayout_keepAspectDimension, KeepNone);
 
-        this.aspectRatioMinWidth = a.getLayoutDimension(R.styleable.AspectRatioFrameLayout_aspectRatioMinWidth, MinWidthNone);
-        this.aspectRatioMaxWidth = a.getLayoutDimension(R.styleable.AspectRatioFrameLayout_aspectRatioMaxWidth, MaxWidthNone);
-        this.aspectRatioMinHeight = a.getLayoutDimension(R.styleable.AspectRatioFrameLayout_aspectRatioMinHeight, MinHeightNone);
-        this.aspectRatioMaxHeight = a.getLayoutDimension(R.styleable.AspectRatioFrameLayout_aspectRatioMaxHeight, MaxHeightNone);
-
         a.recycle();
 
         internalInit();
@@ -196,70 +191,6 @@ public class AspectRatioFrameLayout extends FrameLayout {
         return this.keepAspectDimension;
     }
 
-    /**
-     * 自动调整后的最小宽度
-     * 最终的宽高调整与此关联
-     */
-    private int aspectRatioMinWidth = MinWidthNone;
-    protected AspectRatioFrameLayout setAspectRatioMinWidth(int aspectRatioMinWidth) {
-        if (this.aspectRatioMinWidth != aspectRatioMinWidth) {
-            this.aspectRatioMinWidth = aspectRatioMinWidth;
-            requestLayout();
-        }
-        return this;
-    }
-    protected int getAspectRatioMinWidth() {
-        return this.aspectRatioMinWidth;
-    }
-
-    /**
-     * 自动调整后的最大宽度
-     * 最终的宽高调整与此关联
-     */
-    private int aspectRatioMaxWidth = MaxWidthNone;
-    protected AspectRatioFrameLayout setAspectRatioMaxWidth(int aspectRatioMaxWidth) {
-        if (this.aspectRatioMaxWidth != aspectRatioMaxWidth) {
-            this.aspectRatioMaxWidth = aspectRatioMaxWidth;
-            requestLayout();
-        }
-        return this;
-    }
-    protected int getAspectRatioMaxWidth() {
-        return this.aspectRatioMaxWidth;
-    }
-
-    /**
-     * 自动调整后的最小高度
-     * 最终的宽高调整与此关联
-     */
-    private int aspectRatioMinHeight = MinHeightNone;
-    protected AspectRatioFrameLayout setAspectRatioMinHeight(int aspectRatioMinHeight) {
-        if (this.aspectRatioMinHeight != aspectRatioMinHeight) {
-            this.aspectRatioMinHeight = aspectRatioMinHeight;
-            requestLayout();
-        }
-        return this;
-    }
-    protected int getAspectRatioMinHeight() {
-        return this.aspectRatioMinHeight;
-    }
-
-    /**
-     * 自动调整后的最大高度
-     * 最终的宽高调整与此关联
-     */
-    private int aspectRatioMaxHeight = MaxHeightNone;
-    protected AspectRatioFrameLayout setAspectRatioMaxHeight(int aspectRatioMaxHeight) {
-        if (this.aspectRatioMaxHeight != aspectRatioMaxHeight) {
-            this.aspectRatioMaxHeight = aspectRatioMaxHeight;
-            requestLayout();
-        }
-        return this;
-    }
-    protected int getAspectRatioMaxHeight() {
-        return this.aspectRatioMaxHeight;
-    }
-    
     /* Overrides */
     @Override
     protected void onMeasure(int widthMeasureSpec, int heightMeasureSpec) {
@@ -274,6 +205,11 @@ public class AspectRatioFrameLayout extends FrameLayout {
 
             int desireWidth = widthSpecSize;
             int desireHeight = heightSpecSize;
+            if (getParent() != null) {
+                ViewGroup parent = (ViewGroup) getParent();
+                desireWidth -= parent.getPaddingLeft() + parent.getPaddingRight();
+                desireHeight -=parent.getPaddingTop() + parent.getPaddingBottom();
+            }
 
             if (getKeepAspectDimension() == KeepWidth) {
                 if (widthSpecMode == MeasureSpec.EXACTLY) {
@@ -295,13 +231,6 @@ public class AspectRatioFrameLayout extends FrameLayout {
                 else {
 //                    desireHeight = (int) ((desireWidth - widthPadding) / getAspectRatio() + heightPadding);
                     desireHeight = (int) (desireWidth / getAspectRatio());
-                }
-
-                if (getAspectRatioMinHeight() != MinHeightNone) {
-                    desireHeight = Math.max(desireHeight, getAspectRatioMinHeight());
-                }
-                if (getAspectRatioMaxHeight() != MaxHeightNone && getAspectRatioMaxHeight() > 0) {
-                    desireHeight = Math.min(desireHeight, getAspectRatioMaxHeight());
                 }
 
                 if (heightSpecMode == MeasureSpec.AT_MOST) {
@@ -328,13 +257,6 @@ public class AspectRatioFrameLayout extends FrameLayout {
                 else {
 //                    desireWidth = (int) ((desireHeight - heightPadding) * getAspectRatio() + widthPadding);
                     desireWidth = (int) (desireHeight * getAspectRatio());
-                }
-
-                if (getAspectRatioMinWidth() != MinWidthNone) {
-                    desireWidth = Math.max(desireWidth, getAspectRatioMinWidth());
-                }
-                if (getAspectRatioMaxWidth() != MaxWidthNone && getAspectRatioMaxWidth() > 0) {
-                    desireWidth = Math.min(desireWidth, getAspectRatioMaxWidth());
                 }
 
                 if (widthSpecMode == MeasureSpec.AT_MOST) {

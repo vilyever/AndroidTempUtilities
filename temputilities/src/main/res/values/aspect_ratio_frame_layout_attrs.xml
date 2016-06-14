@@ -19,17 +19,5 @@
             <enum name="width" value="1" />
             <enum name="height" value="2" />
         </attr>
-        <attr name="aspectRatioMinWidth" format="dimension" > <!-- 自动调整时的最小宽度，仅在宽度自动根据比例变换时有效 -->
-            <flag name="none" value="-1" />
-        </attr>
-        <attr name="aspectRatioMaxWidth" format="dimension" > <!-- 自动调整时的最大宽度，仅在宽度自动根据比例变换时有效 -->
-            <flag name="none" value="-1" />
-        </attr>
-        <attr name="aspectRatioMinHeight" format="dimension" > <!-- 自动调整时的最小高度，仅在高度自动根据比例变换时有效 -->
-            <flag name="none" value="-1" />
-        </attr>
-        <attr name="aspectRatioMaxHeight" format="dimension" > <!-- 自动调整时的最小高度，仅在高度自动根据比例变换时有效 -->
-            <flag name="none" value="-1" />
-        </attr>
     </declare-styleable>
 </resources>
