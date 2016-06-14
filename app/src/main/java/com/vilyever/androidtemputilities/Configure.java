@@ -89,6 +89,10 @@ public class Configure {
         return defaultValue;
     }
 
+    public static void removeValue(@ConfigureKey String key) {
+        getSharedPreferences().edit().remove(key).apply();
+    }
+
     public static void setInt(@ConfigureKey String key, int value) {
         setValue(key, value);
     }

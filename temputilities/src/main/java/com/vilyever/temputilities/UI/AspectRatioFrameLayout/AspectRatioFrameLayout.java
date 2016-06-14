@@ -4,6 +4,8 @@ import android.content.Context;
 import android.content.res.TypedArray;
 import android.support.annotation.IntDef;
 import android.util.AttributeSet;
+import android.view.View;
+import android.view.ViewGroup;
 import android.widget.FrameLayout;
 
 import com.vilyever.temputilities.R;
@@ -59,11 +61,11 @@ public class AspectRatioFrameLayout extends FrameLayout {
     /**
      * xml属性keepAspectDimension的预设值，{@link #keepAspectDimension}
      */
-    @IntDef({KeepNoWrapContent, KeepWidth, KeepHeight})
+    @IntDef({KeepNone, KeepWidth, KeepHeight})
     @Retention(RetentionPolicy.SOURCE)
     public @interface KeepAspectDimension {}
     // 保持非wrap_content的宽或高不变
-    public static final int KeepNoWrapContent = 0;
+    public static final int KeepNone = 0;
     // 保持宽不变
     public static final int KeepWidth = 1;
     // 保持高不变
@@ -80,7 +82,7 @@ public class AspectRatioFrameLayout extends FrameLayout {
     /* Constructors */
     public AspectRatioFrameLayout(Context context) {
         super(context);
-        init();
+        internalInit();
     }
     
     public AspectRatioFrameLayout(Context context, AttributeSet attrs) {
@@ -109,7 +111,7 @@ public class AspectRatioFrameLayout extends FrameLayout {
             }
         }
 
-        this.keepAspectDimension = a.getInt(R.styleable.AspectRatioFrameLayout_keepAspectDimension, KeepNoWrapContent);
+        this.keepAspectDimension = a.getInt(R.styleable.AspectRatioFrameLayout_keepAspectDimension, KeepNone);
 
         this.aspectRatioMinWidth = a.getLayoutDimension(R.styleable.AspectRatioFrameLayout_aspectRatioMinWidth, MinWidthNone);
         this.aspectRatioMaxWidth = a.getLayoutDimension(R.styleable.AspectRatioFrameLayout_aspectRatioMaxWidth, MaxWidthNone);
@@ -118,7 +120,7 @@ public class AspectRatioFrameLayout extends FrameLayout {
 
         a.recycle();
 
-        init();
+        internalInit();
     }
     
     
@@ -261,70 +263,120 @@ public class AspectRatioFrameLayout extends FrameLayout {
     /* Overrides */
     @Override
     protected void onMeasure(int widthMeasureSpec, int heightMeasureSpec) {
-        if (getAspectRatio() != DefaultAspectRatioNone) {
+        if (getAspectRatio() != DefaultAspectRatioNone && getKeepAspectDimension() != KeepNone && getLayoutParams() != null) {
             final int widthSpecMode = MeasureSpec.getMode(widthMeasureSpec);
             final int heightSpecMode = MeasureSpec.getMode(heightMeasureSpec);
             final int widthSpecSize = MeasureSpec.getSize(widthMeasureSpec);
             final int heightSpecSize = MeasureSpec.getSize(heightMeasureSpec);
-            boolean resizeWidth = false;
-            boolean resizeHeight = false;
-
-            super.onMeasure(widthMeasureSpec, heightMeasureSpec);
-            int measuredWidth = getMeasuredWidth();
-            int measuredHeight = getMeasuredHeight();
-
-            if (getKeepAspectDimension() == KeepNoWrapContent) {
-                resizeWidth = widthSpecMode != MeasureSpec.EXACTLY && getLayoutParams().width == LayoutParams.WRAP_CONTENT;
-                resizeHeight = heightSpecMode != MeasureSpec.EXACTLY && getLayoutParams().height == LayoutParams.WRAP_CONTENT;
-            }
-            else if (getKeepAspectDimension() == KeepWidth) {
-                resizeWidth = false;
-                resizeHeight = true;
-            }
-            else if (getKeepAspectDimension() == KeepHeight) {
-                resizeWidth = true;
-                resizeHeight = false;
-            }
 
             int widthPadding = getPaddingLeft() + getPaddingRight();
             int heightPadding = getPaddingTop() + getPaddingBottom();
 
-            if (resizeWidth) {
-                int desiredWidth = (int) ((measuredHeight - heightPadding) * getAspectRatio() + widthPadding);
-                if (getAspectRatioMinWidth() != MinWidthNone) {
-                    desiredWidth = Math.max(desiredWidth, getAspectRatioMinWidth());
+            int desireWidth = 0;
+            int desireHeight = 0;
+
+            if (getKeepAspectDimension() == KeepWidth) {
+                if (widthSpecMode == MeasureSpec.EXACTLY) {
+                    desireWidth = widthSpecSize;
                 }
-                if (getAspectRatioMaxWidth() != MaxWidthNone && getAspectRatioMaxWidth() > 0) {
-                    desiredWidth = Math.min(desiredWidth, getAspectRatioMaxWidth());
+                else {
+                    if (getLayoutParams().width >= 0) {
+                        desireWidth = getLayoutParams().width;
+                    }
+
+                    if (widthSpecMode == MeasureSpec.AT_MOST) {
+                        desireWidth = Math.min(desireWidth, widthSpecSize);
+                    }
                 }
 
-                widthMeasureSpec = MeasureSpec.makeMeasureSpec(desiredWidth, MeasureSpec.EXACTLY);
-                getLayoutParams().width = LayoutParams.WRAP_CONTENT;
+                if (heightSpecMode != MeasureSpec.EXACTLY) {
+                    desireHeight = (int) ((desireWidth - widthPadding) / getAspectRatio() + heightPadding);
+                    if (getAspectRatioMinHeight() != MinHeightNone) {
+                        desireHeight = Math.max(desireHeight, getAspectRatioMinHeight());
+                    }
+                    if (getAspectRatioMaxHeight() != MaxHeightNone && getAspectRatioMaxHeight() > 0) {
+                        desireHeight = Math.min(desireHeight, getAspectRatioMaxHeight());
+                    }
+                }
+                else {
+                    desireHeight = heightSpecSize;
+                }
+            }
+            else {
+                if (heightSpecMode == MeasureSpec.EXACTLY) {
+                    desireHeight = heightSpecSize;
+                }
+                else {
+                    if (getLayoutParams().height >= 0) {
+                        desireHeight = getLayoutParams().height;
+                    }
+
+                    if (heightSpecMode == MeasureSpec.AT_MOST) {
+                        desireHeight = Math.min(desireHeight, heightSpecSize);
+                    }
+                }
+
+                if (widthSpecMode != MeasureSpec.EXACTLY) {
+                    desireWidth = (int) ((desireHeight - heightPadding) * getAspectRatio() + widthPadding);
+                    if (getAspectRatioMinWidth() != MinWidthNone) {
+                        desireWidth = Math.max(desireWidth, getAspectRatioMinWidth());
+                    }
+                    if (getAspectRatioMaxWidth() != MaxWidthNone && getAspectRatioMaxWidth() > 0) {
+                        desireWidth = Math.min(desireWidth, getAspectRatioMaxWidth());
+                    }
+                }
+                else {
+                    desireWidth = widthSpecSize;
+                }
             }
 
-            if (resizeHeight) {
-                int desiredHeight = (int) ((measuredWidth - widthPadding) / getAspectRatio() + heightPadding);
-                if (getAspectRatioMinHeight() != MinHeightNone) {
-                    desiredHeight = Math.max(desiredHeight, getAspectRatioMinHeight());
-                }
-                if (getAspectRatioMaxHeight() != MaxHeightNone && getAspectRatioMaxHeight() > 0) {
-                    desiredHeight = Math.min(desiredHeight, getAspectRatioMaxHeight());
-                }
+            setMeasuredDimension(desireWidth, desireHeight);
 
-                heightMeasureSpec = MeasureSpec.makeMeasureSpec(desiredHeight, MeasureSpec.EXACTLY);
-                getLayoutParams().height = LayoutParams.WRAP_CONTENT;
+            widthMeasureSpec = MeasureSpec.makeMeasureSpec(desireWidth, widthSpecMode);
+            heightMeasureSpec = MeasureSpec.makeMeasureSpec(desireHeight, heightSpecMode);
+            int childCount = getChildCount();
+            for (int i = 0; i < childCount; i++) {
+                final View child = getChildAt(i);
+                if (child.getVisibility() != GONE) {
+                    measureChildWithMargins(child, widthMeasureSpec, 0, heightMeasureSpec, 0);
+                }
             }
         }
-
-        super.onMeasure(widthMeasureSpec, heightMeasureSpec);
+        else {
+            super.onMeasure(widthMeasureSpec, heightMeasureSpec);
+        }
     }
-     
-     
+
+    @Override
+    public void setLayoutParams(ViewGroup.LayoutParams params) {
+        if (params != null) {
+            if ((getKeepAspectDimension() == KeepWidth && params.width == ViewGroup.LayoutParams.WRAP_CONTENT)
+                    || (getKeepAspectDimension() == KeepHeight && params.height == ViewGroup.LayoutParams.WRAP_CONTENT)) {
+                throw new IllegalStateException("AspectRatioFrameLayout do not support WRAP_CONTENT for the keep dimension.");
+            }
+        }
+        super.setLayoutParams(params);
+    }
+
+    @Override
+    public ViewGroup.LayoutParams getLayoutParams() {
+        ViewGroup.LayoutParams layoutParams = super.getLayoutParams();
+        if (layoutParams != null) {
+            if (getKeepAspectDimension() == KeepWidth) {
+                layoutParams.height = ViewGroup.LayoutParams.WRAP_CONTENT;
+            }
+            else if (getKeepAspectDimension() == KeepHeight) {
+                layoutParams.width = ViewGroup.LayoutParams.WRAP_CONTENT;
+            }
+        }
+        return layoutParams;
+    }
+
     /* Delegates */
     
     
     /* Private Methods */
-    private void init() {
+    private void internalInit() {
     }
 
     /**

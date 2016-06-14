@@ -1,0 +1,40 @@
+<?xml version="1.0" encoding="utf-8"?>
+<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools" android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    >
+
+    <com.vilyever.temputilities.UI.AspectRatioFrameLayout.AspectRatioFrameLayout
+        android:layout_width="match_parent"
+        android:layout_height="100dp"
+        android:layout_centerInParent="true"
+        app:aspectRatio="2"
+        app:keepAspectDimension="height"
+        android:background="@color/Red"
+        android:padding="8dp"
+        >
+
+        <ImageView
+            android:id="@+id/imageView"
+            android:layout_width="wrap_content"
+            android:layout_height="50dp"
+            android:padding="@dimen/presetDoublePadding"
+            android:scaleType="center"
+            android:src="@drawable/logger_floating_icon"
+            android:background="@color/Green"
+            />
+
+    </com.vilyever.temputilities.UI.AspectRatioFrameLayout.AspectRatioFrameLayout>
+
+
+
+    <com.vilyever.androidtemputilities.Test.aspectratioframelayout.TestTextView
+        android:layout_width="wrap_content"
+        android:layout_height="50dp"
+        android:layout_margin="8dp"
+        android:text="j923jf92j89gfj3298jgf983j2g89j2893jg8923jg92j398j98f2f98j49g8j 98jdf 9j298j t92j498jf98sdj gisj dflj sladj fjsaoidfj 98sadj f98ajsdflkasj dflkjaslkdfj8asd fj98jas98djf 9------------ ----gj"
+        android:background="@color/Purple"
+        />
+
+</RelativeLayout>
